@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMPLODE ⚡️</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>EMPLODE ⚡️</h1>
+      <p id="status">Connecting to server…</p>
+      <div id="shape" class="circle"></div>
+      <div id="custom-word-controls">
+        <input
+          type="text"
+          id="custom-word-input"
+          placeholder="Type a word and press Add"
+        />
+        <button id="add-word-btn">Add</button>
+      </div>
+      <p>Your score: <span id="score">0</span></p>
+
+      <section id="leaderboard-section">
+        <h2>Leaderboard</h2>
+        <ol id="leaderboard"></ol>
+      </section>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="client.js"></script>
+  </body>
+</html> 

@@ -1,0 +1,26 @@
+plugins {
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.openjfx:javafx-controls:20.0.0.1'
+    implementation 'org.openjfx:javafx-graphics:20.0.0.1'
+    implementation 'org.openjfx:javafx-base:20.0.0.1'
+    implementation 'io.socket:socket.io-client:1.0.0'
+    implementation 'org.kordamp.ikonli:ikonli-javafx:12.3.1'
+    implementation 'org.kordamp.ikonli:ikonli-materialdesign2-pack:12.3.1'
+}
+
+application {
+    mainClass = 'com.emplode.Main'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+} 

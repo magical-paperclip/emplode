@@ -1,0 +1,19 @@
+{
+  "name": "emplode-backend",
+  "version": "1.0.0",
+  "description": "EMPLODE multiplayer game backend server (Node.js + Express + Socket.IO)",
+  "main": "backend/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+} 

@@ -1,0 +1,44 @@
+/* Minimal sics-ground-style dark theme */
+.root {
+    -fx-font-family: "JetBrains Mono", "Fira Code", monospace;
+    -fx-background-color: #0e0e10;
+    -fx-text-fill: #f5f5f7;
+}
+
+#toolbar {
+    -fx-padding: 10 12 0 12;
+}
+
+.icon-button {
+    -fx-background-color: transparent;
+    -fx-padding: 6;
+    -fx-cursor: hand;
+}
+
+.icon-button .ikonli-font-icon {
+    -fx-icon-size: 18;
+    -fx-fill: #f5f5f7;
+    -fx-opacity: 0.8;
+}
+
+.icon-button:hover .ikonli-font-icon {
+    -fx-fill: #00e2c2;
+    -fx-opacity: 1.0;
+}
+
+.card {
+    -fx-background-color: rgba(255,255,255,0.05);
+    -fx-background-radius: 6;
+    -fx-padding: 12;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.6) , 10 , 0 , 0 , 2 );
+}
+
+.h1 {
+    -fx-font-size: 18;
+    -fx-font-weight: 600;
+}
+
+.small-muted {
+    -fx-font-size: 11;
+    -fx-text-fill: rgba(245,245,247,0.55);
+} 
