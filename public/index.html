@@ -2,32 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EMPLODE ⚡️</title>
+    <title>Bubble Canvas</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="app">
-      <h1>EMPLODE ⚡️</h1>
-      <p id="status">Connecting to server…</p>
-      <div id="shape" class="circle"></div>
-      <div id="custom-word-controls">
-        <input
-          type="text"
-          id="custom-word-input"
-          placeholder="Type a word and press Add"
-        />
-        <button id="add-word-btn">Add</button>
+    <div id="bubble-app">
+      <div id="control-bar">
+        <form id="add-problem-form">
+          <input type="text" id="problem-input" placeholder="Type and press Enter…" autocomplete="off" autofocus aria-label="Bubble text" />
+          <button type="submit" id="add-btn" aria-label="Add bubble">Add</button>
+        </form>
       </div>
-      <p>Your score: <span id="score">0</span></p>
-
-      <section id="leaderboard-section">
-        <h2>Leaderboard</h2>
-        <ol id="leaderboard"></ol>
-      </section>
+      <div id="problem-canvas" role="main" aria-label="Bubble canvas"></div>
+      <p class="hint">Click a bubble to dismiss it.</p>
     </div>
-
     <script src="/socket.io/socket.io.js"></script>
     <script type="module" src="client.js"></script>
   </body>
