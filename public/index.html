@@ -1,23 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bubble Canvas</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div id="bubble-app">
-      <div id="control-bar">
-        <form id="add-problem-form">
-          <input type="text" id="problem-input" placeholder="Type and press Enter…" autocomplete="off" autofocus aria-label="Bubble text" />
-          <button type="submit" id="add-btn" aria-label="Add bubble">Add</button>
-        </form>
-      </div>
-      <div id="problem-canvas" role="main" aria-label="Bubble canvas"></div>
-      <p class="hint">Click a bubble to dismiss it.</p>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>emplode</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Mood selection modal -->
+  <div id="mdl" class="modal">
+    <h1 class="ttl">hru?</h1>
+    <div class="gridy">
+      <button class="mBtn" data-mood="angry" style="--clr:#ea4335" aria-label="Angry"></button>
+      <button class="mBtn" data-mood="excited" style="--clr:#fbbc04" aria-label="Excited"></button>
+      <button class="mBtn" data-mood="happy" style="--clr:#fdd835" aria-label="Happy"></button>
+      <button class="mBtn" data-mood="calm" style="--clr:#34a853" aria-label="Calm"></button>
+      <button class="mBtn" data-mood="thoughtful" style="--clr:#4285f4" aria-label="Thoughtful"></button>
+      <button class="mBtn" data-mood="creative" style="--clr:#a142f4" aria-label="Creative"></button>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="module" src="client.js"></script>
-  </body>
+  </div>
+
+  <!-- Cause entry form -->
+  <div id="cf" class="hidden cause-wrapper">
+    <input id="cInp" placeholder="Cause?" />
+    <button id="goBtn">go</button>
+  </div>
+
+  <!-- Matter.js playground -->
+  <div id="playground"></div>
+  <button id="rst" class="hidden reset">again</button>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script type="module" src="client.js"></script>
+</body>
 </html> 
