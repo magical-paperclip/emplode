@@ -59,10 +59,9 @@ function noteTool(){
   document.onmouseup = () => drag = false
 
   note.ondblclick = () => {
-    note.style.transition = 'transform .3s,opacity .3s'
-    note.style.transform  = 'scale(0) rotate(540deg)'
-    note.style.opacity    = '0'
-    setTimeout(()=>note.remove(),300)
+    if(note.classList.contains('crumple')) return;
+    note.classList.add('crumple');
+    note.addEventListener('animationend', () => note.remove(), { once: true });
   }
   reset.classList.remove('hidden')
 }
