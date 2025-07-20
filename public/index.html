@@ -7,12 +7,11 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <!-- Mood selection modal -->
   <div id="mdl" class="modal">
     <h1 class="ttl">hru?</h1>
     <div class="gridy">
       <button class="mBtn" data-mood="angry" style="--clr:#ea4335" aria-label="Angry"></button>
-      <button class="mBtn" data-mood="excited" style="--clr:#fbbc04" aria-label="Excited"></button>
+      <button class="mBtn" data-mood="anxiety" style="--clr:#fbbc04" aria-label="Anxiety"></button>
       <button class="mBtn" data-mood="happy" style="--clr:#fdd835" aria-label="Happy"></button>
       <button class="mBtn" data-mood="calm" style="--clr:#34a853" aria-label="Calm"></button>
       <button class="mBtn" data-mood="thoughtful" style="--clr:#4285f4" aria-label="Thoughtful"></button>
@@ -20,15 +19,14 @@
     </div>
   </div>
 
-  <!-- Cause entry form -->
   <div id="cf" class="hidden cause-wrapper">
     <input id="cInp" placeholder="Cause?" />
     <button id="goBtn">go</button>
   </div>
 
-  <!-- Matter.js playground -->
   <div id="playground"></div>
   <button id="rst" class="hidden reset">again</button>
+  <button id="tutorial" class="tutorial">?</button>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
   <script type="module" src="client.js"></script>

@@ -26,85 +26,80 @@ public class Main extends Application {
     private static final int HEIGHT = 600;
     private static final int MAX_CLICKS = 10;
 
-    private final AtomicInteger clickCount = new AtomicInteger();
-    private Socket socket;
+    private final AtomicInteger clicks = new AtomicInteger();
+    private Socket connection;
 
     @Override
-    public void start(Stage stage) throws URISyntaxException {
-        // ───────────────────────────────── sockets ──────────────────────────────
-        socket = IO.socket("http://localhost:3000");
-        socket.on(Socket.EVENT_CONNECT, args -> {
+    public void start(Stage window) throws URISyntaxException {
+        connection = IO.socket("http://localhost:3000");
+        connection.on(Socket.EVENT_CONNECT, args -> {
             System.out.println("[socket] connected");
-            socket.emit("join_game");
+            connection.emit("join_game");
         });
-        socket.on("player_clicked", args -> {
-            // you can enrich UI with other players' clicks
+        connection.on("player_clicked", args -> {
         });
-        socket.on("explosion_occurred", args -> {
+        connection.on("explosion_occurred", args -> {
            
         });
-        socket.connect();
+        connection.connect();
 
-        // ─────────────────────────────── JavaFX UI ─────────────────────────────
-        Canvas canvas = new Canvas(WIDTH, HEIGHT);
-        GraphicsContext g = canvas.getGraphicsContext2D();
+        Canvas board = new Canvas(WIDTH, HEIGHT);
+        GraphicsContext draw = board.getGraphicsContext2D();
 
-        Label counter = new Label("0 / " + MAX_CLICKS);
-        counter.getStyleClass().add("h1");
+        Label display = new Label("0 / " + MAX_CLICKS);
+        display.getStyleClass().add("h1");
 
-        Button clearBtn = new Button("Clear");
+        Button reset = new Button("Clear");
 
-        HBox toolbar = new HBox(8, counter, clearBtn);
-        toolbar.setId("toolbar");
-        toolbar.setAlignment(Pos.CENTER_LEFT);
+        HBox controls = new HBox(8, display, reset);
+        controls.setId("toolbar");
+        controls.setAlignment(Pos.CENTER_LEFT);
 
-        BorderPane root = new BorderPane(canvas);
-        root.setTop(toolbar);
+        BorderPane layout = new BorderPane(board);
+        layout.setTop(controls);
 
-        Scene scene = new Scene(root, WIDTH, HEIGHT, Color.web("#0e0e10"));
-        scene.getStylesheets().add(getClass().getResource("/minimal.css").toExternalForm());
+        Scene view = new Scene(layout, WIDTH, HEIGHT, Color.web("#0e0e10"));
+        view.getStylesheets().add(getClass().getResource("/minimal.css").toExternalForm());
 
-        stage.setTitle("EMPLODE – burst your thoughts");
-        stage.setScene(scene);
-        stage.show();
+        window.setTitle("EMPLODE – burst your thoughts");
+        window.setScene(view);
+        window.show();
 
-        // ─────────────────────────── central shape logic ───────────────────────
-        final double[] radius = {40};
-        final double[] targetRadius = {40};
+        final double[] size = {40};
+        final double[] targetSize = {40};
 
-        canvas.setOnMouseClicked(e -> {
-            int c = clickCount.incrementAndGet();
-            targetRadius[0] += 6;
-            counter.setText(c + " / " + MAX_CLICKS);
-            socket.emit("click_shape");
-            if (c >= MAX_CLICKS) {
-                clickCount.set(0);
-                radius[0] = 40;
-                targetRadius[0] = 40;
-                counter.setText("0 / " + MAX_CLICKS);
-                socket.emit("explode_shape");
+        board.setOnMouseClicked(e -> {
+            int count = clicks.incrementAndGet();
+            targetSize[0] += 6;
+            display.setText(count + " / " + MAX_CLICKS);
+            connection.emit("click_shape");
+            if (count >= MAX_CLICKS) {
+                clicks.set(0);
+                size[0] = 40;
+                targetSize[0] = 40;
+                display.setText("0 / " + MAX_CLICKS);
+                connection.emit("explode_shape");
             }
         });
 
-        // ───────────────────────── drawing loop (simple) ───────────────────────
-        AnimationTimer timer = new AnimationTimer() {
+        AnimationTimer loop = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                g.setFill(Color.web("#0e0e10"));
-                g.fillRect(0, 0, WIDTH, HEIGHT);
+                draw.setFill(Color.web("#0e0e10"));
+                draw.fillRect(0, 0, WIDTH, HEIGHT);
 
-                radius[0] += (targetRadius[0] - radius[0]) * 0.2;
+                size[0] += (targetSize[0] - size[0]) * 0.2;
 
-                double tensionRatio = clickCount.get() / (double) MAX_CLICKS;
-                Color base = Color.web("#00e2c2");
-                Color tense = Color.web("#ff5c5c");
-                Color current = base.interpolate(tense, tensionRatio);
+                double tension = clicks.get() / (double) MAX_CLICKS;
+                Color calm = Color.web("#00e2c2");
+                Color angry = Color.web("#ff5c5c");
+                Color current = calm.interpolate(angry, tension);
 
-                g.setFill(current);
-                g.fillOval(WIDTH / 2.0 - radius[0], HEIGHT / 2.0 - radius[0], radius[0] * 2, radius[0] * 2);
+                draw.setFill(current);
+                draw.fillOval(WIDTH / 2.0 - size[0], HEIGHT / 2.0 - size[0], size[0] * 2, size[0] * 2);
             }
         };
-        timer.start();
+        loop.start();
     }
 
     public static void main(String[] args) {

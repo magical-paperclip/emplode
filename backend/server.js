@@ -9,25 +9,25 @@ import fs from "fs";
 const app = express();
 app.use(cors());
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.resolve(__dirname, "../public")));
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+app.use(express.static(path.resolve(dirname, "../public")));
 
-const httpServer = createServer(app);
-const io = new Server(httpServer, { cors: { origin: "*" }, allowEIO3: true });
+const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" }, allowEIO3: true });
 const PORT = process.env.PORT || 3000;
 
-const highScorePath = path.resolve(__dirname, "highScores.json");
+const highScoresPath = path.resolve(dirname, "highScores.json");
 let highScores = {};
 try {
-  if (fs.existsSync(highScorePath)) highScores = JSON.parse(fs.readFileSync(highScorePath, "utf-8"));
+  if (fs.existsSync(highScoresPath)) highScores = JSON.parse(fs.readFileSync(highScoresPath, "utf-8"));
 } catch (err) {
   console.error("Failed to load high scores:", err);
 }
 
 const saveHighScores = () => {
   try {
-    fs.writeFileSync(highScorePath, JSON.stringify(highScores, null, 2));
+    fs.writeFileSync(highScoresPath, JSON.stringify(highScores, null, 2));
   } catch (err) {
     console.error("Failed to save high scores:", err);
   }
@@ -37,34 +37,30 @@ const gameState = { players: {}, clicks: 0, explosions: 0 };
 
 const getLeaderboard = () =>
   Object.entries(highScores)
-    .map(([username, score]) => ({ username, score }))
+    .map(([name, score]) => ({ name, score }))
     .sort((a, b) => b.score - a.score)
     .slice(0, 10);
 
 const updateHighScore = (player) => {
-  if (!player) return;
-  if (player.score > (highScores[player.username] || 0)) {
-    highScores[player.username] = player.score;
+  const { username, score } = player;
+  if (!highScores[username] || highScores[username] < score) {
+    highScores[username] = score;
     saveHighScores();
-    io.emit("leaderboard_update", getLeaderboard());
   }
+};
+
+const broadcastProblems = () => {
+  io.emit("problems_update", Object.values(problems));
 };
 
 const problems = {};
 const uid = () => Math.random().toString(36).substring(2, 10);
+
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
-const broadcastProblems = () =>
-  io.emit(
-    "problems_list",
-    Object.values(problems).map((p) => ({
-      id: p.id,
-      label: p.label,
-      color: p.color,
-      shape: p.shape,
-      remainingCount: p.remaining.size,
-    }))
-  );
+server.listen(PORT, () => {
+  console.log(`Server running at http://localhost:${PORT}`);
+});
 
 io.on("connection", (socket) => {
   socket.on("join_game", ({ username } = {}) => {
@@ -94,7 +90,7 @@ io.on("connection", (socket) => {
     updateHighScore(player);
     io.emit("shape_exploded", { id: socket.id, explosions: player.explosions, totalExplosions: gameState.explosions });
     io.emit("leaderboard_update", getLeaderboard());
-  });
+  }); 
 
   socket.on("new_problem", ({ label }) => {
     label = (label || "Problem").trim();
@@ -107,10 +103,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("solved_problem", (id) => {
-    const p = problems[id];
-    if (!p) return;
-    p.remaining.delete(socket.id);
-    if (p.remaining.size === 0) {
+    const thing = problems[id];
+    if (!thing) return;
+    thing.remaining.delete(socket.id);
+    if (thing.remaining.size === 0) {
       delete problems[id];
       io.emit("remove_problem", id);
     } else {
@@ -120,23 +116,6 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     delete gameState.players[socket.id];
-    io.emit("leaderboard_update", getLeaderboard());
-    for (const id of Object.keys(problems)) {
-      const p = problems[id];
-      p.remaining.delete(socket.id);
-      if (p.remaining.size === 0) {
-        delete problems[id];
-        io.emit("remove_problem", id);
-      }
-    }
-    broadcastProblems();
+    Object.values(problems).forEach(thing => thing.remaining.delete(socket.id));
   });
 });
-
-setInterval(() => io.emit("leaderboard_update", getLeaderboard()), 30000);
-
-app.get("/stats", (_req, res) => {
-  res.json({ playersOnline: Object.keys(gameState.players).length, totalClicks: gameState.clicks, totalExplosions: gameState.explosions });
-});
-
-httpServer.listen(PORT, () => console.log(`🚀 EMPLODE backend listening on http://localhost:${PORT}`));
