@@ -27,7 +27,7 @@ submitBtn.onclick = () => {
   causeForm.classList.add('hidden')
   
   if(selectedMood === 'angry'){
-    showAngerMenu()
+    showAngerTools()
   }else if(selectedMood === 'anxiety'){
     showAnxietyTools()
   }else if(selectedMood === 'happy'){

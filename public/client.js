@@ -1,28 +1,26 @@
-// scrappy mood → tool playground  (no sockets, no frameworks)
-
-// refs
 const modal = document.getElementById('mdl')
 const moodBtns = [...document.querySelectorAll('.mBtn')]
 let selectedMood = null
+const cf = document.getElementById('cf')
 
-// palette helper
 function getColors(){
   if(selectedMood === 'angry')
     return ['#b71c1c','#c62828','#d32f2f','#e53935','#f44336','#ff5252']
   return ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
 }
-const causeForm = document.getElementById('cf')
-const causeInput = document.getElementById('cInp')
-const submitBtn = document.getElementById('goBtn')
-const playground = document.getElementById('playground')
-const resetBtn = document.getElementById('rst')
-const helpBtn = document.getElementById('tutorial')
 
-helpBtn.onclick = showTutorial
+const inp = document.getElementById('cInp')
+const go = document.getElementById('goBtn')
+var pg = document.getElementById('playground')
+let rst = document.getElementById('rst')
+const help = document.getElementById('tutorial')
+let isDrawing = false
+
+help.onclick = showTutorial
 
 function showTutorial(){
   if(document.querySelector('#tutorialPopup')) return
-  const colors=[
+  let colors=[
     ['#ea4335','anger'],
     ['#fbbc04','anxiety'],
     ['#fdd835','happiness'],
@@ -30,273 +28,274 @@ function showTutorial(){
     ['#4285f4','thoughtful'],
     ['#a142f4','creative']
   ]
-  const overlay=document.createElement('div')
-  overlay.id='tutorialPopup'
-  overlay.className='tutorial-modal'
-  overlay.innerHTML=`
+  const popup=document.createElement('div');
+  popup.id='tutorialPopup';
+  popup.className='tutorial-modal';
+  popup.innerHTML=`
     <div class="tutorial-box">
       <h2 style="margin:0;text-align:center">mood colours</h2>
       ${colors.map(([hex,name])=>`<div class="tutorial-row"><div class="tutorial-circle" style="background:${hex}"></div><span>${name}</span></div>`).join('')}
       <button class="tutorial-close">close</button>
     </div>
-  `
-  overlay.querySelector('.tutorial-close').onclick=()=>overlay.remove()
-  document.body.appendChild(overlay)
+  `;
+  popup.querySelector('.tutorial-close').onclick=()=>popup.remove();
+  document.body.appendChild(popup);
 }
 
-// (maybe username?)-> mood pick -> cause -> tools -> make it more interactive -> reset
 moodBtns.forEach(btn=>btn.onclick = () => {
-  selectedMood = btn.dataset.mood
-  modal.classList.add('hidden')
-  causeForm.classList.remove('hidden')
-  causeInput.focus()
-  
-  document.body.className = `mood-${selectedMood}`
-})
+  selectedMood = btn.dataset.mood;
+  modal.classList.add('hidden');
+  cf.classList.remove('hidden');
+  inp.focus();
+  document.body.className = `mood-${selectedMood}`;
+});
 
-submitBtn.onclick = () => {
-  if(!causeInput.value.trim()) return
-  causeForm.classList.add('hidden')
+go.onclick = () => {
+  if(!inp.value.trim()) return;
+  cf.classList.add('hidden');
+  
   if(selectedMood === 'angry'){
-    showAngerMenu()
+    showAngerTools();
   }else if(selectedMood === 'anxiety'){
-    showAnxietyTools()
+    showAnxietyTools();
   }else if(selectedMood === 'happy'){
-    showHappyTool()
+    showHappyTool();
   }else{
-    showBreathTool()
+    showBreathTool();
   }
 
-  // --- anxiety specific --
   function showAnxietyTools(){
-    const toolsMenu = document.createElement('div')
-    toolsMenu.id = 'circleMenu'
-    toolsMenu.innerHTML = `
+    let menu = document.createElement('div');
+    menu.id = 'circleMenu';
+    menu.innerHTML = `
       <div class="circle-tool" data-t="journal" style="background:#fbbc04" title="Journal"></div>
       <div class="circle-tool" data-t="whiteboard" style="background:#f9a825" title="Whiteboard"></div>
-    `
-    playground.appendChild(toolsMenu)
-    toolsMenu.querySelectorAll('.circle-tool').forEach(b=>b.onclick = () => selectAnxietyTool(b.dataset.t, toolsMenu))
+    `;
+    pg.appendChild(menu);
+    menu.querySelectorAll('.circle-tool').forEach(b=>b.onclick = () => selectAnxietyTool(b.dataset.t, menu));
   }
 
   function selectAnxietyTool(tool, menu){
-    menu.remove()
-    if(tool==='journal') showJournal()
-    if(tool==='whiteboard') showWhiteboard()
+    menu.remove();
+    if(tool==='journal') showJournal();
+    if(tool==='whiteboard') showWhiteboard();
   }
 
-  // journal tool: centered textarea for free writing
   function showJournal(){
-    const container = document.createElement('div')
-    container.className = 'journal-container journal-full'
+    var box = document.createElement('div');
+    box.className = 'journal-container journal-full';
 
-    const textArea = document.createElement('textarea')
-    textArea.placeholder = 'Write it out…'
-    textArea.className = 'journal-input'
-    textArea.style.flex='1'
-    textArea.style.minHeight='0'
-    const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
-    let activeColor = palette[0]
-    textArea.style.color = activeColor
-    container.appendChild(textArea)
+    const txt = document.createElement('textarea');
+    txt.placeholder = 'Write it out…';
+    txt.className = 'journal-input';
+    txt.style.flex='1';
+    txt.style.minHeight='0';
+    let palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4'];
+    var col = palette[0];
+    txt.style.color = col;
+    box.appendChild(txt);
 
-    const colorSelector = document.createElement('div')
-    colorSelector.className = 'journal-color-row'
+    const colors = document.createElement('div');
+    colors.className = 'journal-color-row';
     palette.forEach(color=>{
-      const dot = document.createElement('div')
-      dot.className = 'color-dot'
-      dot.style.background = color
-      if(color===activeColor) dot.classList.add('active')
+      const dot = document.createElement('div');
+      dot.className = 'color-dot';
+      dot.style.background = color;
+      if(color===col) dot.classList.add('active');
       dot.onclick = ()=>{
-        activeColor = color
-        textArea.style.color = color
-        ;[...colorSelector.children].forEach(d=>d.classList.toggle('active', d===dot))
-      }
-      colorSelector.appendChild(dot)
-    })
-    container.appendChild(colorSelector)
+        col = color;
+        txt.style.color = color;
+        ;[...colors.children].forEach(d=>d.classList.toggle('active', d===dot));
+      };
+      colors.appendChild(dot);
+    });
+    box.appendChild(colors);
 
-    const buttonRow = document.createElement('div')
-    buttonRow.className = 'journal-btn-row'
+    let btns = document.createElement('div');
+    btns.className = 'journal-btn-row';
 
-    const saveBtn = document.createElement('button')
-    saveBtn.textContent = 'save'
-    saveBtn.className = 'tool'
-    saveBtn.style.cssText = 'background:#fbbc04;color:#202124'
+    const save = document.createElement('button');
+    save.textContent = 'save';
+    save.className = 'tool';
+    save.style.cssText = 'background:#fbbc04;color:#202124';
 
-    const doneBtn = document.createElement('button')
-    doneBtn.textContent = 'done'
-    doneBtn.className = 'tool'
-    doneBtn.style.cssText = 'background:#fbbc04;color:#202124'
-    doneBtn.onclick = () => { location.reload() }
+    var done = document.createElement('button');
+    done.textContent = 'done';
+    done.className = 'tool';
+    done.style.cssText = 'background:#fbbc04;color:#202124';
+    done.onclick = () => { location.reload(); };
 
-    buttonRow.appendChild(saveBtn)
-    buttonRow.appendChild(doneBtn)
-    container.appendChild(buttonRow)
+    btns.appendChild(save);
+    btns.appendChild(done);
+    box.appendChild(btns);
 
-    const toggleBtn = document.createElement('button')
-    toggleBtn.textContent = 'past journals'
-    toggleBtn.className = 'tool'
-    toggleBtn.style.cssText = 'background:#5f6368;margin-top:0.6rem'
-    container.appendChild(toggleBtn)
+    const toggle = document.createElement('button');
+    toggle.textContent = 'past journals';
+    toggle.className = 'tool';
+    toggle.style.cssText = 'background:#5f6368;margin-top:0.6rem';
+    box.appendChild(toggle);
 
-    const entryList = document.createElement('div')
-    entryList.className = 'journal-list'
-    entryList.style.display = 'none'
-    entryList.style.flex = '1'
-    container.appendChild(entryList)
-    toggleBtn.onclick = () => {
-      entryList.style.display = entryList.style.display==='none' ? 'block' : 'none'
-    }
+    let list = document.createElement('div');
+    list.className = 'journal-list';
+    list.style.display = 'none';
+    list.style.flex = '1';
+    box.appendChild(list);
+    toggle.onclick = () => {
+      list.style.display = list.style.display==='none' ? 'block' : 'none';
+    };
 
-    textArea.addEventListener('input', ()=>{
-      textArea.style.height = 'auto'
-      textArea.style.height = Math.min(textArea.scrollHeight+2, window.innerHeight*0.4) + 'px'
-    })
+    txt.addEventListener('input', ()=>{
+      txt.style.height = 'auto';
+      txt.style.height = Math.min(txt.scrollHeight+2, window.innerHeight*0.4) + 'px';
+    });
 
-    const loadEntries = () => {
-      entryList.innerHTML = ''
-      const entries = JSON.parse(localStorage.getItem('journalEntries')||'[]')
+    function load() {
+      list.innerHTML = '';
+      const entries = JSON.parse(localStorage.getItem('journalEntries')||'[]');
       entries.slice().reverse().forEach(entry=>{
-        let text, color
-        if(typeof entry === 'string'){ text = entry; color = '#e8eaed' } else { text = entry.t; color = entry.c || '#e8eaed' }
-        const entryEl = document.createElement('div')
-        entryEl.className = 'entry-text'
-        entryEl.textContent = text
-        entryEl.style.color = color
-        entryList.appendChild(entryEl)
-      })
+        let text, color;
+        if(typeof entry === 'string'){ 
+          text = entry; 
+          color = '#e8eaed'; 
+        } else { 
+          text = entry.t; 
+          color = entry.c || '#e8eaed'; 
+        }
+        var el = document.createElement('div');
+        el.className = 'entry-text';
+        el.textContent = text;
+        el.style.color = color;
+        list.appendChild(el);
+      });
     }
 
-    loadEntries()
+    load();
 
-    saveBtn.onclick = () => {
-      const text = textArea.value.trim()
-      if(!text) return
-      const entries = JSON.parse(localStorage.getItem('journalEntries')||'[]')
-      entries.push({t:text,c:activeColor})
-      localStorage.setItem('journalEntries', JSON.stringify(entries))
-      textArea.value = ''
-      loadEntries()
-    }
+    save.onclick = () => {
+      const text = txt.value.trim();
+      if(!text) return;
+      let entries = JSON.parse(localStorage.getItem('journalEntries')||'[]');
+      entries.push({t:text,c:col});
+      localStorage.setItem('journalEntries', JSON.stringify(entries));
+      txt.value = '';
+      load();
+    };
 
-    playground.appendChild(container)
-    textArea.focus()
-    resetBtn.classList.remove('hidden')
+    pg.appendChild(box);
+    txt.focus();
+    rst.classList.remove('hidden');
   }
 
-  // whiteboard tool: simple drawing canvas
   function showWhiteboard(){
-    const canvas = document.createElement('canvas')
-    canvas.width = window.innerWidth
-    canvas.height = window.innerHeight
+    let canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     canvas.style = 'position:fixed;top:0;left:0;cursor:crosshair;z-index:999;background:rgba(0,0,0,0.05)';
-    playground.appendChild(canvas)
+    pg.appendChild(canvas);
 
-    const ctx = canvas.getContext('2d')
-    const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
-    let brushColor = '#fbbc04'
-    ctx.strokeStyle = brushColor
-    ctx.lineWidth = 3
-    ctx.lineCap = 'round'
+    var ctx = canvas.getContext('2d');
+    const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4'];
+    let brush = '#fbbc04';
+    ctx.strokeStyle = brush;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
 
-    let isDrawing = false
-    let lastX = 0, lastY = 0
+    var drawing = false;
+    let lastX = 0, lastY = 0;
 
-    const startDrawing = e => {
-      isDrawing = true
-      ;({clientX:lastX, clientY:lastY} = e)
-    }
+    const start = e => {
+      drawing = true;
+      ;({clientX:lastX, clientY:lastY} = e);
+    };
     const draw = e => {
-      if(!isDrawing) return
-      ctx.beginPath()
-      ctx.moveTo(lastX, lastY)
-      ctx.lineTo(e.clientX, e.clientY)
-      ctx.stroke()
-      lastX = e.clientX
-      lastY = e.clientY
-    }
-    const stopDrawing = () => isDrawing = false
+      if(!drawing) return;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.stroke();
+      lastX = e.clientX;
+      lastY = e.clientY;
+    };
+    const stop = () => drawing = false;
 
-    canvas.addEventListener('mousedown', startDrawing)
-    canvas.addEventListener('mousemove', draw)
-    window.addEventListener('mouseup', stopDrawing)
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', stop);
 
-    const toolbar = document.createElement('div')
-    toolbar.style = 'position:fixed;top:20px;left:50%;translate:-50% 0;display:flex;gap:18px;align-items:center;z-index:1001'
+    let toolbar = document.createElement('div');
+    toolbar.style = 'position:fixed;top:20px;left:50%;translate:-50% 0;display:flex;gap:18px;align-items:center;z-index:1001';
 
-    const colorRow = document.createElement('div')
-    colorRow.className = 'journal-color-row'
+    var colorRow = document.createElement('div');
+    colorRow.className = 'journal-color-row';
     palette.forEach(color=>{
-      const dot = document.createElement('div')
-      dot.className = 'color-dot'
-      dot.style.background = color
-      if(color===brushColor) dot.classList.add('active')
+      const dot = document.createElement('div');
+      dot.className = 'color-dot';
+      dot.style.background = color;
+      if(color===brush) dot.classList.add('active');
       dot.onclick = () => {
-        brushColor = color
-        ctx.strokeStyle = color
-        ;[...colorRow.children].forEach(d=>d.classList.toggle('active', d===dot))
-      }
-      colorRow.appendChild(dot)
-    })
+        brush = color;
+        ctx.strokeStyle = color;
+        ;[...colorRow.children].forEach(d=>d.classList.toggle('active', d===dot));
+      };
+      colorRow.appendChild(dot);
+    });
 
-    toolbar.appendChild(colorRow)
+    toolbar.appendChild(colorRow);
 
-    const clearBtn = document.createElement('button')
-    clearBtn.textContent = 'clear'
-    clearBtn.className = 'tool'
-    clearBtn.style.background = '#fbbc04'
-    clearBtn.style.color = '#202124'
-    clearBtn.onclick = () => { ctx.clearRect(0,0,canvas.width,canvas.height) }
+    const clear = document.createElement('button');
+    clear.textContent = 'clear';
+    clear.className = 'tool';
+    clear.style.background = '#fbbc04';
+    clear.style.color = '#202124';
+    clear.onclick = () => { ctx.clearRect(0,0,canvas.width,canvas.height); };
 
-    const closeBtn = document.createElement('button')
-    closeBtn.textContent = 'done'
-    closeBtn.className = 'tool'
-    closeBtn.style.background = '#fbbc04'
-    closeBtn.style.color = '#202124'
-    closeBtn.onclick = () => { location.reload() }
+    const close = document.createElement('button');
+    close.textContent = 'done';
+    close.className = 'tool';
+    close.style.background = '#fbbc04';
+    close.style.color = '#202124';
+    close.onclick = () => { location.reload(); };
 
-    toolbar.appendChild(clearBtn)
-    toolbar.appendChild(closeBtn)
-    playground.appendChild(toolbar)
+    toolbar.appendChild(clear);
+    toolbar.appendChild(close);
+    pg.appendChild(toolbar);
 
-    resetBtn.classList.remove('hidden')
+    rst.classList.remove('hidden');
   }
 
   function showHappyTool(){
-    playground.innerHTML='';
+    pg.innerHTML='';
     runHappyTool('confetti');
-    resetBtn.classList.remove('hidden');
+    rst.classList.remove('hidden');
   }
   
   function runHappyTool(type) {
     if (type === 'emojis') {
-      const dropEmojis = (count=20)=>{
+      function drop(count=20){
         for(let i=0;i<count;i++){
-          const emoji = document.createElement('div')
-          emoji.textContent=':)'
-          emoji.style.position='fixed'
-          emoji.style.left = Math.random()*window.innerWidth+'px'
-          emoji.style.top = '-40px'
-          emoji.style.fontSize = 24 + Math.random()*24 +'px'
-          emoji.style.color = ['#fff176','#ffe57f','#fff59d'][Math.floor(Math.random()*3)]
-          emoji.style.pointerEvents='none'
-          playground.appendChild(emoji)
-        const duration = 4000 + Math.random()*3000
+          var emoji = document.createElement('div');
+          emoji.textContent=':)';
+          emoji.style.position='fixed';
+          emoji.style.left = Math.random()*window.innerWidth+'px';
+          emoji.style.top = '-40px';
+          emoji.style.fontSize = 24 + Math.random()*24 +'px';
+          emoji.style.color = ['#fff176','#ffe57f','#fff59d'][Math.floor(Math.random()*3)];
+          emoji.style.pointerEvents='none';
+          pg.appendChild(emoji);
+        const dur = 4000 + Math.random()*3000;
           emoji.animate([
           { transform:'translateY(0)', opacity:1 },
           { transform:`translateY(${window.innerHeight+60}px)`, opacity:0.3 }
-          ], { duration, easing:'linear' }).onfinish = () => emoji.remove()
+          ], { duration:dur, easing:'linear' }).onfinish = () => emoji.remove();
       }
     }
-      dropEmojis(30)
-      setInterval(() => dropEmojis(5), 2000)
-      
+      drop(30);
+      setInterval(() => drop(5), 2000);
     } else if (type === 'bubbles') {
       const makeBubbles = (count=15) => {
         for(let i=0;i<count;i++){
-          const bubble = document.createElement('div')
-          const size = 20 + Math.random()*40
+          var bubble = document.createElement('div');
+          const size = 20 + Math.random()*40;
           bubble.style = `
             position:fixed;
             left:${Math.random()*window.innerWidth}px;
@@ -307,25 +306,23 @@ submitBtn.onclick = () => {
             background:radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(135,206,235,0.3));
             border:2px solid rgba(255,255,255,0.4);
             pointer-events:none;
-          `
-          playground.appendChild(bubble)
-          const duration = 6000 + Math.random()*4000
+          `;
+          pg.appendChild(bubble);
+          let dur = 6000 + Math.random()*4000;
           bubble.animate([
             { transform:'translateY(0) scale(0)', opacity:0.8 },
             { transform:`translateY(-${window.innerHeight + 100}px) scale(1)`, opacity:0 }
-          ], { duration, easing:'ease-out' }).onfinish = () => bubble.remove()
+          ], { duration:dur, easing:'ease-out' }).onfinish = () => bubble.remove();
         }
-      }
-      makeBubbles(20)
-      setInterval(() => makeBubbles(3), 1500)
-      
+      };
+      makeBubbles(20);
+      setInterval(() => makeBubbles(3), 1500);
         } else if (type === 'confetti') {
-       // invisible ground for confetti to land on
        const ground = document.createElement('div')
        ground.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;height:50px;background:transparent;z-index:997;'
-       playground.appendChild(ground)
+       pg.appendChild(ground)
        
-       const dropConfetti = (count=10) => {
+       const drop = (count=10) => {
          const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6']
          for(let i=0;i<count;i++){
            const piece = document.createElement('div')
@@ -343,7 +340,7 @@ submitBtn.onclick = () => {
              pointer-events:none;
              z-index:998;
            `
-           playground.appendChild(piece)
+           pg.appendChild(piece)
            
            const fall = 3000 + Math.random()*2000
            const drift = (Math.random() - 0.5) * 80
@@ -362,12 +359,11 @@ submitBtn.onclick = () => {
            }
          }
        }
-       dropConfetti(15)
-       setInterval(() => dropConfetti(3), 2500)
-       
-       const clickHandler = (e) => {
-         const centerX = e.clientX
-         const centerY = e.clientY
+       drop(15)
+       setInterval(() => drop(3), 2500)
+       const click = (e) => {
+         const cx = e.clientX
+         const cy = e.clientY
          
          const burst = (count=30) => {
            const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6','#34495e']
@@ -382,8 +378,8 @@ submitBtn.onclick = () => {
              
              piece.style.cssText = `
                position:fixed;
-               left:${centerX}px;
-               top:${centerY}px;
+               left:${cx}px;
+               top:${cy}px;
                width:${isRect ? size*2 : size}px;
                height:${size}px;
                background:${colors[Math.floor(Math.random()*colors.length)]};
@@ -391,17 +387,17 @@ submitBtn.onclick = () => {
                pointer-events:none;
                z-index:998;
              `
-             playground.appendChild(piece)
+             pg.appendChild(piece)
              
-             const duration = 2000 + Math.random() * 1000
-             const finalX = Math.max(0, Math.min(window.innerWidth, centerX + dx / 3))
+             const dur = 2000 + Math.random() * 1000
+             const finalX = Math.max(0, Math.min(window.innerWidth, cx + dx / 3))
              const finalY = window.innerHeight - 50 - Math.random() * 30
              
              piece.animate([
                { transform:'translate(0,0) rotate(0deg)', opacity:1 },
                { transform:`translate(${dx/3}px,${dy/2}px) rotate(${Math.random()*180}deg)`, opacity:1, offset:0.3 },
-               { transform:`translate(${dx/3}px,${finalY - centerY}px) rotate(${Math.random()*360}deg)`, opacity:0.8 }
-             ], { duration, easing:'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => {
+               { transform:`translate(${dx/3}px,${finalY - cy}px) rotate(${Math.random()*360}deg)`, opacity:0.8 }
+             ], { duration:dur, easing:'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => {
                piece.style.left = finalX + 'px'
                piece.style.top = finalY + 'px'
                piece.style.transform = `rotate(${Math.random()*360}deg)`
@@ -409,30 +405,27 @@ submitBtn.onclick = () => {
              }
            }
          }
-         
          burst(35)
        }
-       
-       document.addEventListener('click', clickHandler)
-       
+       document.addEventListener('click', click)
      } else if (type === 'rainbow') {
        const canvas = document.createElement('canvas')
        canvas.width = window.innerWidth
        canvas.height = window.innerHeight
        canvas.style = 'position:fixed;top:0;left:0;pointer-events:none;z-index:998'
-       playground.appendChild(canvas)
+       pg.appendChild(canvas)
        
        const ctx = canvas.getContext('2d')
        let hue = 0
        
        const drawRainbow = () => {
          ctx.clearRect(0, 0, canvas.width, canvas.height)
-         const centerX = canvas.width / 2
-         const centerY = canvas.height / 2
+         const cx = canvas.width / 2
+         const cy = canvas.height / 2
          
          for(let i=0; i<7; i++){
            ctx.beginPath()
-           ctx.arc(centerX, centerY + 100, 200 - i*15, 0, Math.PI)
+           ctx.arc(cx, cy + 100, 200 - i*15, 0, Math.PI)
            ctx.lineWidth = 15
            ctx.strokeStyle = `hsl(${(hue + i*30) % 360}, 70%, 60%)`
            ctx.stroke()
@@ -499,37 +492,24 @@ function showBreathTool(){
   resetBtn.onclick = () => { clearInterval(breathTimer); location.reload() }
 }
 
-function showAngerMenu(){
-  const menu = document.createElement('div')
-  menu.id = 'circleMenu'
-  menu.innerHTML = `
-    <div class="circle-tool" data-tool="open" style="background:#ea4335" title="Open Tools"></div>
-  `
-  playground.appendChild(menu)
-  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
-}
-
 function showAngerTools(){
   const menu = document.createElement('div')
   menu.id = 'circleMenu'
   menu.innerHTML = `
     <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
     <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
+    <div class="circle-tool" data-tool="voronoi" style="background:#b71c1c" title="Voronoi Crumple"></div>
   `
   playground.appendChild(menu)
   ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
 }
 
 function selectCircleTool(tool,menu){
-  if(tool==='open'){
-    menu.remove()
-    showAngerTools()
-    return
-  }
   menu.remove()
   if(tool==='rage')    showRageTool()
   if(tool==='textBox') showTextBoxes()
-  if(tool==='wreck')    showNoteCrumpling()
+  if(tool==='wreck')    showWreckingBall()
+  if(tool==='voronoi') showNoteCrumpling()
 }
 
 function showTextBoxes(){
@@ -837,6 +817,200 @@ function showRageTool(){
     ], { duration:600, easing:'ease-out' }).onfinish = () => blastEffect.remove()
   })
 
+  Engine.run(engine)
+  Render.run(render)
+
+  resetBtn.classList.remove('hidden')
+  resetBtn.onclick = () => location.reload()
+}
+
+function showWreckingBall(){
+  playground.innerHTML = ''
+  
+  const { Engine, Render, World, Bodies, Events, Body, Vector, Constraint } = Matter
+
+  const engine = Engine.create()
+  const width = window.innerWidth
+  const height = window.innerHeight
+
+  const render = Render.create({
+    element: playground,
+    engine,
+    options:{ width, height, wireframes:false, background:'transparent' }
+  })
+
+  // Create walls (floor only for blocks to sit on)
+  const floor = Bodies.rectangle(width/2, height-25, width, 50, { 
+    isStatic:true,
+    render: { fillStyle: '#444' },
+    collisionFilter: {
+      category: 0x0004,
+      mask: 0x0001 | 0x0002 // collides with blocks and stick
+    }
+  })
+
+  // Add floor to world first
+  World.add(engine.world, floor)
+
+  // Create organized block tower (no overlapping)
+  const blocks = []
+  const blockSize = 40 // Slightly smaller blocks for more in the tower
+  const blocksPerRow = 8 // More blocks per row
+  const rows = 8 // Much taller tower
+  
+  // Build massive tower from bottom up
+  for(let row = 0; row < rows; row++){
+    // Alternate row sizes for pyramid effect
+    const currentRowBlocks = Math.max(3, blocksPerRow - Math.floor(row / 2))
+    
+    for(let col = 0; col < currentRowBlocks; col++){
+      const x = width/2 - (currentRowBlocks * blockSize)/2 + col * blockSize + blockSize/2
+      const y = height - 75 - (row * (blockSize + 2)) // Small gap between rows
+      
+      blocks.push(Bodies.rectangle(x, y, blockSize-1, blockSize-1, {
+        render: { 
+          fillStyle: `hsl(${(row * 30 + col * 15) % 360}, 70%, ${50 + row * 5}%)`, // Rainbow gradient by height
+          strokeStyle: '#222',
+          lineWidth: 1
+        },
+        friction: 0.8,
+        frictionAir: 0.01,
+        density: 0.0003, // Even lighter for more dramatic collapses
+        restitution: 0.3,
+        collisionFilter: {
+          category: 0x0001,
+          mask: 0x0002 | 0x0001 | 0x0004 // collides with stick, other blocks, and floor
+        }
+      }))
+    }
+  }
+
+  // Add blocks to world
+  World.add(engine.world, blocks)
+
+  // Create physics stick that follows mouse
+  let mousePos = { x: width/2, y: height/2 }
+  let lastMousePos = { x: width/2, y: height/2 }
+  let mouseVelocity = { x: 0, y: 0 }
+  const stickLength = 120 // Even longer for better leverage
+  const stickWidth = 12 // Thicker for more impact
+  
+  // Create stick as a physics body
+  const stick = Bodies.rectangle(mousePos.x, mousePos.y, stickLength, stickWidth, {
+    render: {
+      fillStyle: '#8B4513',
+      strokeStyle: '#654321',
+      lineWidth: 2
+    },
+    friction: 0.9,
+    frictionAir: 0.008, // Less air resistance for smoother movement
+    density: 0.012, // More mass for better momentum
+    restitution: 0.7, // Higher bounce for more dynamic interactions
+    collisionFilter: {
+      category: 0x0002,
+      mask: 0x0001 | 0x0004 // collides with blocks and floor only
+    }
+  })
+
+  // Set collision filter for blocks so they interact properly with stick
+  blocks.forEach(block => {
+    block.collisionFilter = {
+      category: 0x0001,
+      mask: 0x0002 | 0x0001 | 0x0004 // collides with stick, other blocks, and floor
+    }
+  })
+
+  // Create invisible anchor point for stick constraint
+  const anchor = Bodies.circle(mousePos.x, mousePos.y, 1, {
+    isStatic: true,
+    render: { visible: false },
+    collisionFilter: {
+      category: 0x0008,
+      mask: 0x0000 // doesn't collide with anything
+    }
+  })
+
+  // Connect stick to anchor with more responsive constraint for tricks
+  const stickConstraint = Constraint.create({
+    bodyA: anchor,
+    bodyB: stick,
+    length: 60, // longer leash for more freedom
+    stiffness: 0.4, // softer for fluid movement
+    damping: 0.15 // less damping for sustained motion
+  })
+
+  World.add(engine.world, [stick, anchor, stickConstraint])
+
+  // Add collision event to prevent stick from going through blocks
+  Events.on(engine, 'beforeUpdate', () => {
+    // Apply slight separation force if stick is too close to block centers
+    blocks.forEach(block => {
+      const distance = Vector.magnitude(Vector.sub(stick.position, block.position))
+      const minDistance = (stickLength + blockSize) / 2
+      
+      if (distance < minDistance && distance > 0) {
+        const separation = Vector.mult(
+          Vector.normalise(Vector.sub(stick.position, block.position)), 
+          (minDistance - distance) * 0.1
+        )
+        Body.translate(stick, separation)
+      }
+    })
+  })
+
+  // Mouse tracking with velocity calculation for trick detection
+  render.canvas.addEventListener('mousemove', (e) => {
+    lastMousePos = { ...mousePos }
+    mousePos.x = e.clientX
+    mousePos.y = e.clientY
+    
+    // Calculate mouse velocity for dynamic stick response
+    mouseVelocity.x = (mousePos.x - lastMousePos.x) * 0.5
+    mouseVelocity.y = (mousePos.y - lastMousePos.y) * 0.5
+    
+    // Move the anchor point to follow mouse
+    Body.setPosition(anchor, { x: mousePos.x, y: mousePos.y })
+    
+    // Apply velocity-based force to stick for more responsive movement
+    const velocityMagnitude = Math.sqrt(mouseVelocity.x * mouseVelocity.x + mouseVelocity.y * mouseVelocity.y)
+    if (velocityMagnitude > 5) { // Only apply force for significant movement
+      const normalizedVelocity = {
+        x: mouseVelocity.x / velocityMagnitude,
+        y: mouseVelocity.y / velocityMagnitude
+      }
+      const responsiveForce = Vector.mult(normalizedVelocity, Math.min(velocityMagnitude * 0.001, 0.05))
+      Body.applyForce(stick, stick.position, responsiveForce)
+    }
+  })
+  
+  // Click for power swing with enhanced tricks
+  render.canvas.addEventListener('mousedown', (e) => {
+    // Apply impulse to stick in direction away from anchor
+    const forceDirection = Vector.normalise(Vector.sub(stick.position, anchor.position))
+    const swingForce = Vector.mult(forceDirection, 0.15) // Even more power!
+    
+    Body.applyForce(stick, stick.position, swingForce)
+    
+    // Add angular velocity based on mouse movement for spin tricks
+    const spinDirection = mouseVelocity.x > 0 ? 1 : -1
+    Body.setAngularVelocity(stick, spinDirection * 1.2) // Directional spin based on mouse movement
+  })
+
+  // Right click for reverse spin trick
+  render.canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault() // Prevent context menu
+    
+    // Apply reverse force and spin
+    const forceDirection = Vector.normalise(Vector.sub(anchor.position, stick.position))
+    const pullForce = Vector.mult(forceDirection, 0.08)
+    
+    Body.applyForce(stick, stick.position, pullForce)
+    Body.setAngularVelocity(stick, -1.5) // Reverse spin
+  })
+
+  // Hide default cursor
+  render.canvas.style.cursor = 'none'
+  
   Engine.run(engine)
   Render.run(render)
 

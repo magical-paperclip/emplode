@@ -1,12 +1,4 @@
-function showAngerMenu(){
-  const menu = document.createElement('div')
-  menu.id = 'circleMenu'
-  menu.innerHTML = `
-    <div class="circle-tool" data-tool="open" style="background:#ea4335" title="Open Tools"></div>
-  `
-  playground.appendChild(menu)
-  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
-}
+// Removed showAngerMenu() - no longer needed
 
 function showAngerTools(){
   const menu = document.createElement('div')
@@ -14,21 +6,18 @@ function showAngerTools(){
   menu.innerHTML = `
     <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
     <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
+    <div class="circle-tool" data-tool="voronoi" style="background:#b71c1c" title="Voronoi Crumple"></div>
   `
   playground.appendChild(menu)
   ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
 }
 
 function selectCircleTool(tool,menu){
-  if(tool==='open'){
-    menu.remove()
-    showAngerTools()
-    return
-  }
   menu.remove()
   if(tool==='rage') showRageTool()
   if(tool==='textBox') showTextBoxes()
-  if(tool==='wreck') showNoteCrumpling()
+  if(tool==='wreck') showWreckingBall()
+  if(tool==='voronoi') showNoteCrumpling()
 }
 
 function showRageTool(){
@@ -98,6 +87,62 @@ function showRageTool(){
       { transform:`translate(-50%,-50%) scale(${blastRadius/10})`, opacity:0 }
     ], { duration:600, easing:'ease-out' }).onfinish = () => blastEffect.remove()
   })
+
+  Engine.run(engine)
+  Render.run(render)
+
+  resetBtn.classList.remove('hidden')
+  resetBtn.onclick = () => location.reload()
+} 
+
+function showWreckingBall(){
+  playground.innerHTML = ''
+  const { Engine, Render, World, Bodies, Mouse, MouseConstraint, Body, Vector } = Matter
+
+  const engine = Engine.create()
+  const width = window.innerWidth
+  const height = window.innerHeight
+
+  const render = Render.create({
+    element: playground,
+    engine,
+    options:{ width, height, wireframes:false, background:'transparent' }
+  })
+
+  // Create walls
+  const walls = [
+    Bodies.rectangle(width/2, height+25, width, 50, { isStatic:true }),
+    Bodies.rectangle(width/2, -25, width, 50, { isStatic:true }),
+    Bodies.rectangle(-25, height/2, 50, height, { isStatic:true }),
+    Bodies.rectangle(width+25, height/2, 50, height, { isStatic:true })
+  ]
+
+  // Create destructible blocks representing frustrations
+  const blocks = []
+  for(let i=0; i<15; i++){
+    blocks.push(Bodies.rectangle(
+      Math.random() * width, 
+      Math.random() * height/2, 
+      40, 40, 
+      { render: { fillStyle: '#ff5252' } }
+    ))
+  }
+
+  // Create wrecking ball
+  const ball = Bodies.circle(width/2, 50, 30, {
+    render: { fillStyle: '#b71c1c' },
+    density: 0.01
+  })
+
+  World.add(engine.world, [...walls, ...blocks, ball])
+
+  // Mouse control for throwing the ball
+  const mouse = Mouse.create(render.canvas)
+  const mouseConstraint = MouseConstraint.create(engine, {
+    mouse,
+    constraint: { stiffness: 0.2, render: { visible: false } }
+  })
+  World.add(engine.world, mouseConstraint)
 
   Engine.run(engine)
   Render.run(render)
