@@ -264,32 +264,9 @@ submitBtn.onclick = () => {
   }
 
   function showHappyTool(){
-    playground.innerHTML = ''
-    
-    const happyOptions = [
-      { text: ':)', action: 'emojis' },
-      { text: 'bubbles', action: 'bubbles' },
-      { text: 'confetti', action: 'confetti' },
-      { text: 'rainbow', action: 'rainbow' }
-    ]
-    
-    const menuDiv = document.createElement('div')
-    menuDiv.style = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;gap:12px;flex-wrap:wrap;justify-content:center'
-    
-    happyOptions.forEach(option => {
-      const btn = document.createElement('button')
-      btn.textContent = option.text
-      btn.className = 'tool'
-      btn.style.background = '#fdd835'
-      btn.onclick = () => {
-        menuDiv.remove()
-        runHappyTool(option.action)
-      }
-      menuDiv.appendChild(btn)
-    })
-    
-    playground.appendChild(menuDiv)
-    resetBtn.classList.remove('hidden')
+    playground.innerHTML='';
+    runHappyTool('confetti');
+    resetBtn.classList.remove('hidden');
   }
   
   function runHappyTool(type) {
@@ -402,7 +379,7 @@ submitBtn.onclick = () => {
              const piece = document.createElement('div')
              const size = 3 + Math.random()*4
              const isRect = Math.random() > 0.6
-             const spread = Math.random() * Math.PI * 0.8 - Math.PI * 0.4
+             const spread = Math.random() * Math.PI * 2
              const force = 100 + Math.random() * 150
              const dx = Math.cos(spread) * force + (Math.random() - 0.5) * 30
              const dy = Math.sin(spread) * force - 80 - Math.random() * 40
