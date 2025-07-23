@@ -70,13 +70,13 @@ submitBtn.onclick = () => {
   // --- anxiety specific --
   function showAnxietyTools(){
     const toolsMenu = document.createElement('div')
-    toolsMenu.id = 'tools'
+    toolsMenu.id = 'circleMenu'
     toolsMenu.innerHTML = `
-      <button class="tool" data-t="journal" style="background:#fbbc04">Journal</button>
-      <button class="tool" data-t="whiteboard" style="background:#fbbc04">Whiteboard</button>
+      <div class="circle-tool" data-t="journal" style="background:#fbbc04" title="Journal"></div>
+      <div class="circle-tool" data-t="whiteboard" style="background:#f9a825" title="Whiteboard"></div>
     `
     playground.appendChild(toolsMenu)
-    toolsMenu.querySelectorAll('.tool').forEach(b=>b.onclick = () => selectAnxietyTool(b.dataset.t, toolsMenu))
+    toolsMenu.querySelectorAll('.circle-tool').forEach(b=>b.onclick = () => selectAnxietyTool(b.dataset.t, toolsMenu))
   }
 
   function selectAnxietyTool(tool, menu){
@@ -282,13 +282,13 @@ submitBtn.onclick = () => {
           emoji.style.color = ['#fff176','#ffe57f','#fff59d'][Math.floor(Math.random()*3)]
           emoji.style.pointerEvents='none'
           playground.appendChild(emoji)
-          const duration = 4000 + Math.random()*3000
+        const duration = 4000 + Math.random()*3000
           emoji.animate([
-            { transform:'translateY(0)', opacity:1 },
-            { transform:`translateY(${window.innerHeight+60}px)`, opacity:0.3 }
+          { transform:'translateY(0)', opacity:1 },
+          { transform:`translateY(${window.innerHeight+60}px)`, opacity:0.3 }
           ], { duration, easing:'linear' }).onfinish = () => emoji.remove()
-        }
       }
+    }
       dropEmojis(30)
       setInterval(() => dropEmojis(5), 2000)
       
@@ -319,15 +319,13 @@ submitBtn.onclick = () => {
       makeBubbles(20)
       setInterval(() => makeBubbles(3), 1500)
       
-    } else if (type === 'confetti') {
-       const pieces = []  // keep track of all pieces
-       
+        } else if (type === 'confetti') {
        // invisible ground for confetti to land on
        const ground = document.createElement('div')
        ground.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;height:50px;background:transparent;z-index:997;'
        playground.appendChild(ground)
        
-       const dropConfetti = (count=15) => {
+       const dropConfetti = (count=10) => {
          const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6']
          for(let i=0;i<count;i++){
            const piece = document.createElement('div')
@@ -346,18 +344,16 @@ submitBtn.onclick = () => {
              z-index:998;
            `
            playground.appendChild(piece)
-           pieces.push(piece)
            
-           const fall = 2500 + Math.random()*1500
-           const drift = (Math.random() - 0.5) * 100
-           const finalX = startX + drift
+           const fall = 3000 + Math.random()*2000
+           const drift = (Math.random() - 0.5) * 80
+           const finalX = Math.max(0, Math.min(window.innerWidth, startX + drift))
            const groundY = window.innerHeight - 50 - Math.random() * 30
            
            piece.animate([
              { transform:'translateY(0) translateX(0) rotate(0deg)', opacity:1 },
              { transform:`translateY(${groundY + 20}px) translateX(${drift}px) rotate(${Math.random()*180}deg)`, opacity:0.9 }
            ], { duration:fall, easing:'ease-in' }).onfinish = () => {
-             // land on ground
              piece.style.top = groundY + 'px'
              piece.style.left = finalX + 'px'
              piece.style.transform = `rotate(${Math.random()*360}deg)`
@@ -366,23 +362,23 @@ submitBtn.onclick = () => {
            }
          }
        }
-       dropConfetti(20)
+       dropConfetti(15)
        setInterval(() => dropConfetti(3), 2500)
        
        const clickHandler = (e) => {
          const centerX = e.clientX
          const centerY = e.clientY
          
-         const burst = (count=60) => {
+         const burst = (count=30) => {
            const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6','#34495e']
            for(let i=0;i<count;i++){
              const piece = document.createElement('div')
              const size = 3 + Math.random()*4
              const isRect = Math.random() > 0.6
              const spread = Math.random() * Math.PI * 2
-             const force = 100 + Math.random() * 150
-             const dx = Math.cos(spread) * force + (Math.random() - 0.5) * 30
-             const dy = Math.sin(spread) * force - 80 - Math.random() * 40
+             const force = 80 + Math.random() * 100
+             const dx = Math.cos(spread) * force
+             const dy = Math.sin(spread) * force - 50
              
              piece.style.cssText = `
                position:fixed;
@@ -396,46 +392,25 @@ submitBtn.onclick = () => {
                z-index:998;
              `
              playground.appendChild(piece)
-             pieces.push(piece)
              
-             let currentX = centerX
-             let currentY = centerY
-             let velocityX = dx / 15
-             let velocityY = dy / 15
-             const gravity = 0.8
-             const airResistance = 0.98
-             const groundY = window.innerHeight - 50 - Math.random() * 30
+             const duration = 2000 + Math.random() * 1000
+             const finalX = Math.max(0, Math.min(window.innerWidth, centerX + dx / 3))
+             const finalY = window.innerHeight - 50 - Math.random() * 30
              
-             const animate = () => {
-               velocityY += gravity  // gravity pulls down
-               velocityX *= airResistance  // air resistance
-               velocityY *= airResistance
-               
-               currentX += velocityX
-               currentY += velocityY
-               
-               piece.style.left = currentX + 'px'
-               piece.style.top = currentY + 'px'
-               piece.style.transform = `rotate(${(currentX + currentY) * 0.5}deg)`
-               
-               if (currentY >= groundY) {
-                 // hit ground, stop
-                 piece.style.top = groundY + 'px'
-                 piece.style.opacity = '0.7'
-                 piece.style.transform = `rotate(${Math.random()*360}deg)`
-                 return
-               }
-               
-               if (currentY < window.innerHeight + 100) {
-                 requestAnimationFrame(animate)
-               }
+             piece.animate([
+               { transform:'translate(0,0) rotate(0deg)', opacity:1 },
+               { transform:`translate(${dx/3}px,${dy/2}px) rotate(${Math.random()*180}deg)`, opacity:1, offset:0.3 },
+               { transform:`translate(${dx/3}px,${finalY - centerY}px) rotate(${Math.random()*360}deg)`, opacity:0.8 }
+             ], { duration, easing:'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => {
+               piece.style.left = finalX + 'px'
+               piece.style.top = finalY + 'px'
+               piece.style.transform = `rotate(${Math.random()*360}deg)`
+               piece.style.opacity = '0.7'
              }
-             
-             requestAnimationFrame(animate)
            }
          }
          
-         burst(50)
+         burst(35)
        }
        
        document.addEventListener('click', clickHandler)
@@ -473,14 +448,13 @@ submitBtn.onclick = () => {
 
 function showTools(){
   const toolsMenu = document.createElement('div')
-  toolsMenu.id = 'tools'
-  toolsMenu.style = 'position:absolute;top:50%;left:50%;translate:-50% -50%;display:flex;gap:18px'
+  toolsMenu.id = 'circleMenu'
   toolsMenu.innerHTML = `
-    <button class="tool" data-t="note">Crumple Note</button>
-    <button class="tool" data-t="breath">Deep Breath</button>
+    <div class="circle-tool" data-t="note" style="background:#34a853" title="Crumple Note"></div>
+    <div class="circle-tool" data-t="breath" style="background:#4285f4" title="Deep Breath"></div>
   `
   playground.appendChild(toolsMenu)
-  toolsMenu.querySelectorAll('.tool').forEach(b=>b.onclick = () => selectTool(b.dataset.t,toolsMenu))
+  toolsMenu.querySelectorAll('.circle-tool').forEach(b=>b.onclick = () => selectTool(b.dataset.t,toolsMenu))
 }
 
 function selectTool(tool,menu){
@@ -555,7 +529,7 @@ function selectCircleTool(tool,menu){
   menu.remove()
   if(tool==='rage')    showRageTool()
   if(tool==='textBox') showTextBoxes()
-  if(tool==='wreck')    showWreckingBall()
+  if(tool==='wreck')    showNoteCrumpling()
 }
 
 function showTextBoxes(){
@@ -615,88 +589,181 @@ function showTextBoxes(){
 }
 
 
-function showWreckingBall(){
+function showNoteCrumpling(){
   playground.innerHTML = ''
-  const { Engine, Render, World, Bodies, Constraint, Composites, Mouse, MouseConstraint } = Matter
+  
+  // create paper.js canvas
+  const canvas = document.createElement('canvas')
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  canvas.style.cssText = 'position:fixed;top:0;left:0;cursor:grab;z-index:999;'
+  playground.appendChild(canvas)
+  
+  // setup paper.js
+  paper.setup(canvas)
 
-  const engine = Engine.create()
-  const width = window.innerWidth
-  const height = window.innerHeight
+  // check if libraries are loaded
+  if(typeof Voronoi === 'undefined') {
+    console.error('Voronoi library not loaded')
+    playground.innerHTML = '<div style="color:white;text-align:center;padding:50px;">Voronoi library failed to load</div>'
+    return
+  }
+  
+  // voronoi setup
+  const voronoi = new Voronoi()
+  let sites = []
+  let bbox = {xl: 0, xr: paper.view.size.width, yt: 0, yb: paper.view.size.height}
+  let diagram
+  const spotColor = new paper.Color('#f5f5dc')
+  let mousePos = paper.view.center
+  let selected = false
+  let crumpling = false
+  
+  // generate initial sites
+  sites = generateBeeHivePoints(80, true)
 
-  const render = Render.create({
-    element: playground,
-    engine,
-    options: { width, height, wireframes:false, background:'transparent' }
-  })
-
-  const boundaries = [
-    Bodies.rectangle(width/2, height+25, width, 50, { isStatic:true }),
-    Bodies.rectangle(-25, height/2, 50, height, { isStatic:true }),
-    Bodies.rectangle(width+25, height/2, 50, height, { isStatic:true }),
-    Bodies.rectangle(width/2, -25, width, 50, { isStatic:true })
-  ]
-  World.add(engine.world, boundaries)
-
-  const blockSize = 24
-  const spacing = 2
-  const columns = Math.floor(width / (blockSize + spacing)) - 2
-  const rows = Math.floor(height / ((blockSize + spacing) * 2))
-  const createStar = (x, y, radius) => {
-    const palette = getColors()
-    const spikes = 5
-    const innerRadius = radius * 0.5
-    const vertices = []
-    for(let i=0;i<spikes*2;i++){
-      const r = i%2===0 ? radius : innerRadius
-      const angle = (Math.PI / spikes) * i
-      vertices.push({ x: Math.cos(angle)*r, y: Math.sin(angle)*r })
+  // add text overlay
+  const noteText = causeInput.value || 'anger'
+  const text = new paper.PointText(paper.view.center)
+  text.content = noteText
+  text.fillColor = '#333'
+  text.fontSize = 32
+  text.fontFamily = 'Poppins'
+  text.justification = 'center'
+  
+  // initial render
+  renderDiagram()
+  
+  function onMouseDown(event) {
+    if(!crumpling){
+      sites.push(event.point)
+      renderDiagram()
     }
-    const color = palette[Math.floor(Math.random()*palette.length)]
-    return Bodies.fromVertices(x, y, [vertices], {
-      restitution:0.6,
-      render:{ fillStyle: color }
-    }, true)
+  }
+  
+  function onMouseMove(event) {
+    mousePos = event.point
+    if(!crumpling && event.count == 0)
+      sites.push(event.point)
+    if(!crumpling && sites.length > 0)
+      sites[sites.length - 1] = event.point
+    renderDiagram()
+  }
+  
+  function onDoubleClick(event) {
+    crumpling = true
+    canvas.style.cursor = 'default'
+    
+    // animate all sites toward center
+    sites.forEach(site => {
+      const angle = Math.random() * Math.PI * 2
+      const distance = Math.random() * 50
+      site.targetX = paper.view.center.x + Math.cos(angle) * distance
+      site.targetY = paper.view.center.y + Math.sin(angle) * distance
+    })
+    
+    // fade text
+    text.opacity = 0.3
+    
+    animateCrumple()
+  }
+  
+  function animateCrumple(){
+    if(!crumpling) return
+    
+    sites.forEach(site => {
+      if(site.targetX && site.targetY){
+        site.x += (site.targetX - site.x) * 0.05
+        site.y += (site.targetY - site.y) * 0.05
+      }
+    })
+    
+    renderDiagram()
+    requestAnimationFrame(animateCrumple)
   }
 
-  const starField = Composites.stack(blockSize, height - rows * (blockSize + spacing) - 50, columns, rows, spacing, spacing, (x, y) =>
-    createStar(x, y, blockSize*0.6)
-  )
-  World.add(engine.world, starField)
-
-  const anchorPoint = { x: 200, y: 50 }
-  const chainLength = 15
-  const linkSize = 32
-  const chain = Composites.stack(anchorPoint.x, anchorPoint.y + linkSize/2, 1, chainLength, 0, 0, (_x,_y,i)=>
-    Bodies.rectangle(anchorPoint.x, anchorPoint.y + i*linkSize + linkSize/2, 16, linkSize, {
-      density:0.004,
-      friction:0.9,
-      collisionFilter:{ group:-1 },
-      render:{ fillStyle:'#8d6e63' }
-    })
-  )
-  Composites.chain(chain, 0.5, 0, 0.5, 1, { stiffness:0.9, length:0, damping:0.1 })
-
-  World.add(engine.world, Constraint.create({ pointA: anchorPoint, bodyB: chain.bodies[0], pointB:{x:0,y:-linkSize/2}, stiffness:1, damping:0.1 }))
-
-  const ballRadius = 90
-  const lastLink = chain.bodies[chain.bodies.length-1]
-  const wreckingBall = Bodies.circle(lastLink.position.x, lastLink.position.y + ballRadius + linkSize/2, ballRadius, {
-    density:0.03,
-    restitution:0.9,
-    collisionFilter:{ group:-1 },
-    render:{ fillStyle:'#b71c1c' }
-  })
-  World.add(engine.world, [chain])
-  World.add(engine.world, Constraint.create({ bodyA:lastLink, pointA:{x:0,y:linkSize/2}, bodyB:wreckingBall, stiffness:1, length:0, damping:0.05 }))
-  World.add(engine.world, wreckingBall)
-
-  const mouse = Mouse.create(render.canvas)
-  const mouseConstraint = MouseConstraint.create(engine, { mouse, constraint:{ stiffness:0.2, render:{ visible:false } } })
-  World.add(engine.world, mouseConstraint)
-  render.mouse = mouse
-
-  Engine.run(engine)
-  Render.run(render)
+  function renderDiagram() {
+    paper.project.activeLayer.children = []
+    
+    // re-add text
+    paper.project.activeLayer.addChild(text)
+    
+    const diagram = voronoi.compute(sites, bbox)
+    if (diagram) {
+      for (let i = 0, l = sites.length; i < l; i++) {
+        const cell = diagram.cells[sites[i].voronoiId]
+        if (cell) {
+          const halfedges = cell.halfedges
+          const length = halfedges.length
+          if (length > 2) {
+            const points = []
+            for (let j = 0; j < length; j++) {
+              const v = halfedges[j].getEndpoint()
+              points.push(new paper.Point(v))
+            }
+            createPath(points, sites[i])
+          }
+        }
+      }
+    }
+  }
+  
+  function createPath(points, center) {
+    const path = new paper.Path()
+    if (!selected) { 
+      path.fillColor = spotColor
+      path.strokeColor = '#ddd'
+      path.strokeWidth = 1
+    } else {
+      path.fullySelected = selected
+    }
+    path.closed = true
+    
+    for(let i = 0; i < points.length; i++) {
+      path.add(points[i])
+    }
+    
+    // add slight randomization for paper texture
+    if(!crumpling){
+      path.smooth()
+    }
+  }
+  
+     function generateBeeHivePoints(size, loose) {
+     const points = []
+     const cols = Math.floor(paper.view.size.width / size)
+     const rows = Math.floor(paper.view.size.height / size)
+     
+     for(let i = 0; i < cols; i++) {
+       for(let j = 0; j < rows; j++) {
+         let x = i * size + size/2
+         let y = j * size + size/2
+         
+         if(j % 2) x += size/2
+         
+         if(loose) {
+           x += (Math.random() - 0.5) * size * 0.3
+           y += (Math.random() - 0.5) * size * 0.3
+         }
+         
+         points.push(new paper.Point(x, y))
+       }
+     }
+     return points
+   }
+  
+     function onResize() {
+     bbox = {xl: 0, xr: paper.view.size.width, yt: 0, yb: paper.view.size.height}
+     renderDiagram()
+   }
+  
+  // bind events
+  paper.view.onMouseDown = onMouseDown
+  paper.view.onMouseMove = onMouseMove  
+  paper.view.onDoubleClick = onDoubleClick
+  paper.view.onResize = onResize
+  
+  renderDiagram()
 
   resetBtn.classList.remove('hidden')
   resetBtn.onclick = () => location.reload()
