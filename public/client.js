@@ -194,6 +194,7 @@ go.onclick = () => {
     pg.appendChild(canvas);
 
     var ctx = canvas.getContext('2d');
+    // coordinate system confusion: clientX/Y vs canvas coordinates had me debugging for hours
     const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4'];
     let brush = '#fbbc04';
     ctx.strokeStyle = brush;

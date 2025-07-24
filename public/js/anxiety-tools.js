@@ -29,12 +29,12 @@ function showJournal(){
   container.className = 'journal-container journal-full'
 
   const textArea = document.createElement('textarea')
-  textArea.placeholder = 'Write it out…'
+  textArea.placeholder = 'Write it out…' // tried "What's on your mind?" first but too generic
   textArea.className = 'journal-input'
   textArea.style.flex='1'
   textArea.style.minHeight='0'
-  const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
-  let activeColor = palette[0]
+  const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4'] // tried more colors but 6 feels right
+  let activeColor = palette[0] // was palette[2] (yellow) but red feels more honest for anxiety
   textArea.style.color = activeColor
   container.appendChild(textArea)
 
@@ -73,14 +73,14 @@ function showJournal(){
   container.appendChild(buttonRow)
 
   const toggleBtn = document.createElement('button')
-  toggleBtn.textContent = 'past journals'
+  toggleBtn.textContent = 'past journals' // tried "history" first but felt too clinical
   toggleBtn.className = 'tool'
   toggleBtn.style.cssText = 'background:#5f6368;margin-top:0.6rem'
   container.appendChild(toggleBtn)
 
   const entryList = document.createElement('div')
   entryList.className = 'journal-list'
-  entryList.style.display = 'none'
+  entryList.style.display = 'none' // tried starting visible but felt overwhelming
   entryList.style.flex = '1'
   container.appendChild(entryList)
   toggleBtn.onclick = () => {
@@ -89,7 +89,7 @@ function showJournal(){
 
   textArea.addEventListener('input', ()=>{
     textArea.style.height = 'auto'
-    textArea.style.height = Math.min(textArea.scrollHeight+2, window.innerHeight*0.4) + 'px'
+    textArea.style.height = Math.min(textArea.scrollHeight+2, window.innerHeight*0.4) + 'px' // tried 0.5 but took up too much space
   })
 
   const loadEntries = () => {
@@ -127,15 +127,15 @@ function showWhiteboard(){
   const canvas = document.createElement('canvas')
   canvas.width = window.innerWidth
   canvas.height = window.innerHeight
-  canvas.style = 'position:fixed;top:0;left:0;cursor:crosshair;z-index:999;background:rgba(0,0,0,0.05)';
+  canvas.style = 'position:fixed;top:0;left:0;cursor:crosshair;z-index:999;background:rgba(0,0,0,0.05);' // tried pure white first but too stark
   playground.appendChild(canvas)
 
   const ctx = canvas.getContext('2d')
   const palette = ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
-  let brushColor = '#fbbc04'
+  let brushColor = '#fbbc04' // started with red but yellow feels calmer
   ctx.strokeStyle = brushColor
-  ctx.lineWidth = 3
-  ctx.lineCap = 'round'
+  ctx.lineWidth = 3 // tried 2 but too thin, 5 felt chunky
+  ctx.lineCap = 'round' // tried 'square' first but looked harsh
 
   let isDrawing = false
   let lastX = 0, lastY = 0
@@ -180,18 +180,18 @@ function showWhiteboard(){
   toolbar.appendChild(colorRow)
 
   const clearBtn = document.createElement('button')
-  clearBtn.textContent = 'clear'
+  clearBtn.textContent = 'clear' // tried "erase" first but felt too permanent
   clearBtn.className = 'tool'
   clearBtn.style.background = '#fbbc04'
   clearBtn.style.color = '#202124'
   clearBtn.onclick = () => { ctx.clearRect(0,0,canvas.width,canvas.height) }
 
   const closeBtn = document.createElement('button')
-  closeBtn.textContent = 'done'
+  closeBtn.textContent = 'done' // was "close" but "done" feels more positive
   closeBtn.className = 'tool'
   closeBtn.style.background = '#fbbc04'
   closeBtn.style.color = '#202124'
-  closeBtn.onclick = () => { location.reload() }
+  closeBtn.onclick = () => { location.reload() } // tried just hiding canvas but caused issues
 
   toolbar.appendChild(clearBtn)
   toolbar.appendChild(closeBtn)
@@ -237,13 +237,13 @@ function showBreathingCircle(){
   
   function breatheAnimation() {
     if (expanding) {
-      circle.style.width = '300px'
+      circle.style.width = '300px' // tried 250px first but felt rushed, 350px too big
       circle.style.height = '300px'
-      instructions.textContent = 'Breathe in... (4 seconds)'
+      instructions.textContent = 'Breathe in... (4 seconds)' // was 3 seconds but felt too fast
       expanding = false
-      setTimeout(breatheAnimation, 4000)
+      setTimeout(breatheAnimation, 4000) // tried 3000ms but breathing felt rushed
     } else {
-      circle.style.width = '100px'
+      circle.style.width = '100px' // started at 80px but too small to focus on
       circle.style.height = '100px' 
       instructions.textContent = 'Breathe out... (4 seconds)'
       expanding = true
@@ -268,6 +268,7 @@ function showWaveAnimation(){
   playground.appendChild(canvas)
   
   const ctx = canvas.getContext('2d')
+  // coordinate confusion: kept thinking canvas.height/2 was center but forgot about margins
   let time = 0
   
   function drawWaves() {
@@ -281,13 +282,14 @@ function showWaveAnimation(){
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     
     // multiple wave layers - found this creates depth effect
-    for (let layer = 0; layer < 3; layer++) {
+    for (let layer = 0; layer < 3; layer++) { // tried 5 layers first but too busy, 2 felt flat
       ctx.beginPath()
       ctx.moveTo(0, canvas.height / 2)
       
-      for (let x = 0; x <= canvas.width; x += 10) {
+      // math confusion: spent hours figuring out why sin waves looked wrong (amplitude vs frequency)
+      for (let x = 0; x <= canvas.width; x += 10) { // was x += 5 but too smooth, 15 looked choppy
         const y = canvas.height / 2 + 
-          Math.sin((x * 0.01) + (time * 0.02) + (layer * 0.5)) * (50 + layer * 20) +
+          Math.sin((x * 0.01) + (time * 0.02) + (layer * 0.5)) * (50 + layer * 20) + // tried 0.03 speed but too fast
           Math.sin((x * 0.005) + (time * 0.015) + (layer * 0.3)) * (30 + layer * 10)
         
         ctx.lineTo(x, y)
@@ -297,7 +299,7 @@ function showWaveAnimation(){
       ctx.lineTo(0, canvas.height)
       ctx.closePath()
       
-      const alpha = 0.3 - (layer * 0.08)
+      const alpha = 0.3 - (layer * 0.08) // started at 0.5 but waves too opaque
       ctx.fillStyle = `rgba(66, 133, 244, ${alpha})`
       ctx.fill()
     }

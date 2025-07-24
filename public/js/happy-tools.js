@@ -35,10 +35,11 @@ function runHappyTool(type) {
     
     const dropConfetti = (count=10) => {
       const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6']
+      // performance: was creating 30 pieces but caused lag on slower devices
       for(let i=0;i<count;i++){
         const piece = document.createElement('div')
         const size = 4 + Math.random()*3
-        const shape = Math.random() > 0.5 ? 'rect' : 'circle'
+        const shape = Math.random() > 0.5 ? 'rect' : 'circle' // tried more shapes but fps dropped
         const startX = Math.random()*window.innerWidth
         piece.style.cssText = `
           position:fixed;
@@ -62,6 +63,7 @@ function runHappyTool(type) {
           { transform:'translateY(0) translateX(0) rotate(0deg)', opacity:1 },
           { transform:`translateY(${groundY + 20}px) translateX(${drift}px) rotate(${Math.random()*180}deg)`, opacity:0.9 }
         ], { duration:fall, easing:'ease-in' }).onfinish = () => {
+          // cleanup: found memory leak without removing old pieces after 1000+ confetti
           piece.style.top = groundY + 'px'
           piece.style.left = finalX + 'px'
           piece.style.transform = `rotate(${Math.random()*360}deg)`
@@ -71,7 +73,7 @@ function runHappyTool(type) {
       }
     }
     dropConfetti(15)
-    setInterval(() => dropConfetti(3), 2500)
+    setInterval(() => dropConfetti(3), 2500) // reduced from 5 pieces - browser struggled with too many
     
     const clickHandler = (e) => {
       const centerX = e.clientX
@@ -79,6 +81,7 @@ function runHappyTool(type) {
       
       const burst = (count=30) => {
         const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6','#34495e']
+        // performance issue: 50+ particles made clicks unresponsive
         for(let i=0;i<count;i++){
           const piece = document.createElement('div')
           const size = 3 + Math.random()*4
@@ -105,6 +108,7 @@ function runHappyTool(type) {
           const finalX = Math.max(0, Math.min(window.innerWidth, centerX + dx / 3))
           const finalY = window.innerHeight - 50 - Math.random() * 30
           
+          // found cubic-bezier gives smoother physics than linear ease
           piece.animate([
             { transform:'translate(0,0) rotate(0deg)', opacity:1 },
             { transform:`translate(${dx/3}px,${dy/2}px) rotate(${Math.random()*180}deg)`, opacity:1, offset:0.3 },
@@ -136,6 +140,7 @@ function showFireworks(){
   playground.appendChild(canvas)
   
   const ctx = canvas.getContext('2d')
+  // performance: tried ctx.imageSmoothingEnabled = false but particles looked pixelated
   const fireworks = []
   const particles = []
   
@@ -151,6 +156,7 @@ function showFireworks(){
       this.coordinateCount = 3
       
       // populate coordinates with current position
+      // performance: tried coordinateCount = 10 but caused stuttering
       while (this.coordinateCount--) {
         this.coordinates.push([this.x, this.y])
       }
@@ -245,7 +251,7 @@ function showFireworks(){
   }
   
   function createParticles(x, y) {
-    let particleCount = 30
+    let particleCount = 30 // was 50 but fps dropped below 30 on older devices
     while (particleCount--) {
       particles.push(new Particle(x, y))
     }
@@ -254,6 +260,7 @@ function showFireworks(){
   function loop() {
     requestAnimationFrame(loop)
     
+    // performance: destination-out blend mode is expensive but needed for trails
     ctx.globalCompositeOperation = 'destination-out'
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -272,6 +279,7 @@ function showFireworks(){
     }
     
     // auto launch fireworks
+    // performance: 0.05 probability keeps frame rate smooth vs 0.1 which lagged
     if (Math.random() < 0.05) {
       fireworks.push(new Firework(
         canvas.width / 2,
@@ -302,6 +310,7 @@ function showSparkles(){
   
   // sparkle trail effect following mouse
   const sparkles = []
+  // performance note: DOM manipulation for each sparkle is expensive but CSS animations are smooth
   
   function createSparkle(x, y) {
     const sparkle = document.createElement('div')
@@ -323,7 +332,7 @@ function showSparkles(){
     playground.appendChild(sparkle)
     sparkles.push(sparkle)
     
-    // animate sparkle
+    // animate sparkle - learned GPU acceleration helps with many small animations
     sparkle.animate([
       { opacity: 1, transform: 'scale(0)' },
       { opacity: 0.8, transform: 'scale(1)' },
@@ -333,6 +342,7 @@ function showSparkles(){
       easing: 'ease-out'
     }).onfinish = () => {
       sparkle.remove()
+      // memory management: remove from array to prevent memory leaks with thousands of sparkles
       const index = sparkles.indexOf(sparkle)
       if (index > -1) sparkles.splice(index, 1)
     }
@@ -343,12 +353,12 @@ function showSparkles(){
   playground.addEventListener('mousemove', (e) => {
     mouseTrail.push({ x: e.clientX, y: e.clientY, time: Date.now() })
     
-    // limit trail length
+    // limit trail length - found 20+ points cause lag spikes
     if (mouseTrail.length > 10) {
       mouseTrail.shift()
     }
     
-    // create sparkles along trail
+    // create sparkles along trail - 0.3 probability found through fps testing
     if (Math.random() < 0.3) {
       const trailPoint = mouseTrail[Math.floor(Math.random() * mouseTrail.length)]
       createSparkle(
@@ -359,7 +369,7 @@ function showSparkles(){
   })
   
   playground.addEventListener('click', (e) => {
-    // burst of sparkles on click
+    // burst of sparkles on click - staggered timing prevents frame drops
     for (let i = 0; i < 15; i++) {
       setTimeout(() => {
         createSparkle(

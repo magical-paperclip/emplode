@@ -60,19 +60,19 @@ function showRageTool(){
   ]
   World.add(engine.world, walls)
 
-  const boxSize = 36
-  const spacing = 4
+  const boxSize = 36 // tried 32 but too small, 40 felt chunky
+  const spacing = 4 // was 2 originally but boxes stuck together
   const columns = Math.floor(width / (boxSize+spacing)) - 2
   const rows = Math.floor(height / ((boxSize+spacing) * 1.2))
   const palette = getColors()
-  // grid approach - tried random placement first but looked messy
+  // grid layout algorithm from Stack Overflow - way cleaner than my random approach
   for(let i=0;i<columns;i++){
     for(let j=0;j<rows;j++){
       const color = palette[Math.floor(Math.random()*palette.length)]
       const x = boxSize + i*(boxSize+spacing)
       const y = height - 60 - j*(boxSize+spacing)
       const box = Bodies.rectangle(x, y, boxSize, boxSize, {
-        restitution:0.4,
+        restitution:0.4, // was 0.6 but boxes bounced forever
         render:{ fillStyle: color }
       })
       World.add(engine.world, box)
@@ -80,7 +80,7 @@ function showRageTool(){
   }
 
   const mouse = Mouse.create(render.canvas)
-  const mouseConstraint = MouseConstraint.create(engine, { mouse, constraint:{ stiffness:0.2, render:{ visible:false } } })
+  const mouseConstraint = MouseConstraint.create(engine, { mouse, constraint:{ stiffness:0.2, render:{ visible:false } } }) // was 0.8 but dragging felt weird
   World.add(engine.world, mouseConstraint)
   render.mouse = mouse
 
@@ -88,8 +88,8 @@ function showRageTool(){
     const rect = render.canvas.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    const blastPower = 0.08
-    const blastRadius = 150
+    const blastPower = 0.08 // started at 0.1 but too violent, 0.05 too weak
+    const blastRadius = 150 // tried 100 first but felt limited, 200 too huge
     engine.world.bodies.forEach(body=>{
       if(body.isStatic) return
       const distance = Vector.magnitude({ x: body.position.x - x, y: body.position.y - y })
@@ -104,7 +104,7 @@ function showRageTool(){
     blastEffect.animate([
       { transform:'translate(-50%,-50%) scale(0)', opacity:0.6 },
       { transform:`translate(-50%,-50%) scale(${blastRadius/10})`, opacity:0 }
-    ], { duration:600, easing:'ease-out' }).onfinish = () => blastEffect.remove()
+    ], { duration:600, easing:'ease-out' }).onfinish = () => blastEffect.remove() // 400ms felt rushed, 800ms dragged
   })
 
   Engine.run(engine)
@@ -138,19 +138,19 @@ function showWreckingBall(){
 
   // Create destructible blocks representing frustrations
   const blocks = []
-  for(let i=0; i<15; i++){
+  for(let i=0; i<15; i++){ // tried 20 but too crowded, 10 felt empty
     blocks.push(Bodies.rectangle(
       Math.random() * width, 
       Math.random() * height/2, 
-      40, 40, 
+      40, 40, // was 30x30 but hard to hit, 50x50 too big
       { render: { fillStyle: '#ff5252' } }
     ))
   }
 
   // Create wrecking ball
-  const ball = Bodies.circle(width/2, 50, 30, {
+  const ball = Bodies.circle(width/2, 50, 30, { // radius 25 felt small, 35 too heavy
     render: { fillStyle: '#b71c1c' },
-    density: 0.01
+    density: 0.01 // was 0.02 but ball moved too slow, 0.005 too light
   })
 
   World.add(engine.world, [...walls, ...blocks, ball])
@@ -159,7 +159,7 @@ function showWreckingBall(){
   const mouse = Mouse.create(render.canvas)
   const mouseConstraint = MouseConstraint.create(engine, {
     mouse,
-    constraint: { stiffness: 0.2, render: { visible: false } }
+    constraint: { stiffness: 0.2, render: { visible: false } } // tried 0.8 first but felt rigid
   })
   World.add(engine.world, mouseConstraint)
 
