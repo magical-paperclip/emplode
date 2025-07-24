@@ -1,4 +1,4 @@
-const modal = document.getElementById('mdl')
+// mood handling - using modal from client.js to avoid duplicate declaration
 const moodBtns = [...document.querySelectorAll('.mBtn')]
 const causeForm = document.getElementById('cf')
 const causeInput = document.getElementById('cInp')
@@ -15,7 +15,7 @@ function getColors(){
 
 moodBtns.forEach(btn=>btn.onclick = () => {
   selectedMood = btn.dataset.mood
-  modal.classList.add('hidden')
+  document.getElementById('mdl').classList.add('hidden')
   causeForm.classList.remove('hidden')
   causeInput.focus()
   

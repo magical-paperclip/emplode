@@ -21,22 +21,6 @@ function selectCircleTool(tool,menu){
   if(tool==='wreck')    showWreckingBall()
   if(tool==='voronoi') showNoteCrumpling()
 }
-  menu.innerHTML = `
-    <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
-    <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
-    <div class="circle-tool" data-tool="voronoi" style="background:#b71c1c" title="Voronoi Crumple"></div>
-  `
-  playground.appendChild(menu)
-  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
-}
-
-function selectCircleTool(tool,menu){
-  menu.remove()
-  if(tool==='rage') showRageTool()
-  if(tool==='textBox') showTextBoxes()
-  if(tool==='wreck') showWreckingBall()
-  if(tool==='voronoi') showNoteCrumpling()
-}
 
 function showRageTool(){
   playground.innerHTML = ''
