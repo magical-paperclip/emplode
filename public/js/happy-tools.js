@@ -1,3 +1,25 @@
+// happiness effects - learning particle systems and confetti
+// trying to make celebration animations
+
+function showHappyTools(){
+  const menu = document.createElement('div')
+  menu.id = 'circleMenu'
+  menu.innerHTML = `
+    <div class="circle-tool" data-tool="confetti" style="background:#34a853" title="Confetti Burst"></div>
+    <div class="circle-tool" data-tool="fireworks" style="background:#0f9d58" title="Fireworks"></div>
+    <div class="circle-tool" data-tool="sparkles" style="background:#137333" title="Sparkle Effect"></div>
+  `
+  playground.appendChild(menu)
+  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectHappyTool(c.dataset.tool, menu))
+}
+
+function selectHappyTool(tool, menu){
+  menu.remove()
+  if(tool==='confetti') showHappyTool()
+  if(tool==='fireworks') showFireworks()  
+  if(tool==='sparkles') showSparkles()
+}
+
 function showHappyTool(){
   playground.innerHTML='';
   runHappyTool('confetti');
@@ -101,4 +123,267 @@ function runHappyTool(type) {
     
     document.addEventListener('click', clickHandler)
   }
+}
+
+function showFireworks(){
+  playground.innerHTML = ''
+  
+  // fireworks with canvas - learned from animation tutorials
+  const canvas = document.createElement('canvas')
+  canvas.width = window.innerWidth
+  canvas.height = window.innerHeight
+  canvas.style.cssText = 'position:fixed;top:0;left:0;background:#000;'
+  playground.appendChild(canvas)
+  
+  const ctx = canvas.getContext('2d')
+  const fireworks = []
+  const particles = []
+  
+  class Firework {
+    constructor(x, y, targetX, targetY) {
+      this.x = x
+      this.y = y
+      this.targetX = targetX
+      this.targetY = targetY
+      this.distanceToTarget = Math.sqrt(Math.pow(targetX - x, 2) + Math.pow(targetY - y, 2))
+      this.distanceTraveled = 0
+      this.coordinates = []
+      this.coordinateCount = 3
+      
+      // populate coordinates with current position
+      while (this.coordinateCount--) {
+        this.coordinates.push([this.x, this.y])
+      }
+      
+      this.angle = Math.atan2(targetY - y, targetX - x)
+      this.speed = 2
+      this.acceleration = 1.05
+      this.brightness = Math.random() * 50 + 50
+      this.targetRadius = 1
+    }
+    
+    update(index) {
+      this.coordinates.pop()
+      this.coordinates.unshift([this.x, this.y])
+      
+      if (this.targetRadius < 8) {
+        this.targetRadius += 0.3
+      } else {
+        this.targetRadius = 1
+      }
+      
+      this.speed *= this.acceleration
+      
+      const vx = Math.cos(this.angle) * this.speed
+      const vy = Math.sin(this.angle) * this.speed
+      this.distanceTraveled = Math.sqrt(Math.pow(this.x + vx - this.x, 2) + Math.pow(this.y + vy - this.y, 2))
+      
+      if (this.distanceTraveled >= this.distanceToTarget) {
+        createParticles(this.targetX, this.targetY)
+        fireworks.splice(index, 1)
+      } else {
+        this.x += vx
+        this.y += vy
+      }
+    }
+    
+    draw() {
+      ctx.beginPath()
+      ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1])
+      ctx.lineTo(this.x, this.y)
+      ctx.strokeStyle = `hsl(${Math.random() * 360}, 100%, ${this.brightness}%)`
+      ctx.stroke()
+      
+      ctx.beginPath()
+      ctx.arc(this.targetX, this.targetY, this.targetRadius, 0, Math.PI * 2)
+      ctx.stroke()
+    }
+  }
+  
+  class Particle {
+    constructor(x, y) {
+      this.x = x
+      this.y = y
+      this.coordinates = []
+      this.coordinateCount = 5
+      
+      while (this.coordinateCount--) {
+        this.coordinates.push([this.x, this.y])
+      }
+      
+      this.angle = Math.random() * Math.PI * 2
+      this.speed = Math.random() * 10 + 1
+      this.friction = 0.95
+      this.gravity = 1
+      this.hue = Math.random() * 360
+      this.brightness = Math.random() * 80 + 50
+      this.alpha = 1
+      this.decay = Math.random() * 0.03 + 0.015
+    }
+    
+    update(index) {
+      this.coordinates.pop()
+      this.coordinates.unshift([this.x, this.y])
+      
+      this.speed *= this.friction
+      this.x += Math.cos(this.angle) * this.speed
+      this.y += Math.sin(this.angle) * this.speed + this.gravity
+      this.alpha -= this.decay
+      
+      if (this.alpha <= this.decay) {
+        particles.splice(index, 1)
+      }
+    }
+    
+    draw() {
+      ctx.beginPath()
+      ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1])
+      ctx.lineTo(this.x, this.y)
+      ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`
+      ctx.stroke()
+    }
+  }
+  
+  function createParticles(x, y) {
+    let particleCount = 30
+    while (particleCount--) {
+      particles.push(new Particle(x, y))
+    }
+  }
+  
+  function loop() {
+    requestAnimationFrame(loop)
+    
+    ctx.globalCompositeOperation = 'destination-out'
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.globalCompositeOperation = 'lighter'
+    
+    let i = fireworks.length
+    while (i--) {
+      fireworks[i].draw()
+      fireworks[i].update(i)
+    }
+    
+    let j = particles.length
+    while (j--) {
+      particles[j].draw()
+      particles[j].update(j)
+    }
+    
+    // auto launch fireworks
+    if (Math.random() < 0.05) {
+      fireworks.push(new Firework(
+        canvas.width / 2,
+        canvas.height,
+        Math.random() * canvas.width,
+        Math.random() * canvas.height / 2
+      ))
+    }
+  }
+  
+  canvas.addEventListener('click', (e) => {
+    fireworks.push(new Firework(
+      canvas.width / 2,
+      canvas.height,
+      e.clientX,
+      e.clientY
+    ))
+  })
+  
+  loop()
+  
+  resetBtn.classList.remove('hidden')
+  resetBtn.onclick = () => location.reload()
+}
+
+function showSparkles(){
+  playground.innerHTML = ''
+  
+  // sparkle trail effect following mouse
+  const sparkles = []
+  
+  function createSparkle(x, y) {
+    const sparkle = document.createElement('div')
+    const size = Math.random() * 6 + 2
+    
+    sparkle.style.cssText = `
+      position: fixed;
+      width: ${size}px;
+      height: ${size}px;
+      background: white;
+      border-radius: 50%;
+      pointer-events: none;
+      left: ${x}px;
+      top: ${y}px;
+      box-shadow: 0 0 ${size * 2}px rgba(255, 255, 255, 0.8);
+      z-index: 1000;
+    `
+    
+    playground.appendChild(sparkle)
+    sparkles.push(sparkle)
+    
+    // animate sparkle
+    sparkle.animate([
+      { opacity: 1, transform: 'scale(0)' },
+      { opacity: 0.8, transform: 'scale(1)' },
+      { opacity: 0, transform: 'scale(0)' }
+    ], {
+      duration: 1000,
+      easing: 'ease-out'
+    }).onfinish = () => {
+      sparkle.remove()
+      const index = sparkles.indexOf(sparkle)
+      if (index > -1) sparkles.splice(index, 1)
+    }
+  }
+  
+  let mouseTrail = []
+  
+  playground.addEventListener('mousemove', (e) => {
+    mouseTrail.push({ x: e.clientX, y: e.clientY, time: Date.now() })
+    
+    // limit trail length
+    if (mouseTrail.length > 10) {
+      mouseTrail.shift()
+    }
+    
+    // create sparkles along trail
+    if (Math.random() < 0.3) {
+      const trailPoint = mouseTrail[Math.floor(Math.random() * mouseTrail.length)]
+      createSparkle(
+        trailPoint.x + (Math.random() - 0.5) * 20,
+        trailPoint.y + (Math.random() - 0.5) * 20
+      )
+    }
+  })
+  
+  playground.addEventListener('click', (e) => {
+    // burst of sparkles on click
+    for (let i = 0; i < 15; i++) {
+      setTimeout(() => {
+        createSparkle(
+          e.clientX + (Math.random() - 0.5) * 60,
+          e.clientY + (Math.random() - 0.5) * 60
+        )
+      }, i * 50)
+    }
+  })
+  
+  const instructions = document.createElement('div')
+  instructions.style.cssText = `
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    font-family: Poppins;
+  `
+  instructions.textContent = 'Move your mouse to create sparkles! ✨'
+  playground.appendChild(instructions)
+  
+  resetBtn.classList.remove('hidden')
+  resetBtn.onclick = () => location.reload()
 } 

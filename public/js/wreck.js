@@ -1,3 +1,6 @@
+// Wrecking ball physics simulation
+// Learning matter.js constraints and collision detection
+
 function showWreckingBall(){
   pg.innerHTML = ''
   

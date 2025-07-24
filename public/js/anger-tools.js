@@ -1,8 +1,26 @@
-// Removed showAngerMenu() - no longer needed
+// Learning matter.js physics for interactive destruction - anger tools
+// figuring out how to make satisfying destruction effects
 
 function showAngerTools(){
   const menu = document.createElement('div')
   menu.id = 'circleMenu'
+  menu.innerHTML = `
+    <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
+    <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
+    <div class="circle-tool" data-tool="voronoi" style="background:#b71c1c" title="Voronoi Crumple"></div>
+    <div class="circle-tool" data-tool="textBox" style="background:#d32f2f" title="Text Physics"></div>
+  `
+  playground.appendChild(menu)
+  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
+}
+
+function selectCircleTool(tool,menu){
+  menu.remove()
+  if(tool==='rage')    showRageTool()
+  if(tool==='textBox') showTextBoxes()
+  if(tool==='wreck')    showWreckingBall()
+  if(tool==='voronoi') showNoteCrumpling()
+}
   menu.innerHTML = `
     <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
     <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
@@ -47,6 +65,7 @@ function showRageTool(){
   const columns = Math.floor(width / (boxSize+spacing)) - 2
   const rows = Math.floor(height / ((boxSize+spacing) * 1.2))
   const palette = getColors()
+  // grid approach - tried random placement first but looked messy
   for(let i=0;i<columns;i++){
     for(let j=0;j<rows;j++){
       const color = palette[Math.floor(Math.random()*palette.length)]

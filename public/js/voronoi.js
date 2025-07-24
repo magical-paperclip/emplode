@@ -1,3 +1,6 @@
+// Voronoi diagram note crumpling effect
+// Learning paper.js and computational geometry
+
 function showNoteCrumpling(){
   pg.innerHTML = ''
   
