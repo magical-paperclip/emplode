@@ -8,7 +8,11 @@ uses javascript and matter.js for physics
 
 **angry mode:**
 - click anywhere and objects fly away with physics
+<<<<<<< HEAD
 - wrecking ball on a chain that u can swing around 
+=======
+- wrecking ball that you can drag around to smash stuff 
+>>>>>>> 6dd569d (fixed readme wording for wrecking ball)
 
 **anxiety mode:**  
 - journal that saves automatically 
@@ -74,4 +78,8 @@ tried to match physics to emotions like destructive stuff for anger
 
 - [how we feel](https://howwefeel.org/) - original mood app that gave me the idea
 - [sics-ground](https://github.com/magical-paperclip/sics-ground) - my previous exprience with matter
+<<<<<<< HEAD
 - nature of code book - helped with animation math
+=======
+- nature of code book - helped with animation math
+>>>>>>> 6dd569d (fixed readme wording for wrecking ball)
