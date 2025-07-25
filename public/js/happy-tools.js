@@ -1,399 +1,128 @@
-// happiness effects - learning particle systems and confetti
-// trying to make celebration animations
+// confetti stuff when ur happy lol
 
-function showHappyTools(){
-  const menu = document.createElement('div')
-  menu.id = 'circleMenu'
-  menu.innerHTML = `
-    <div class="circle-tool" data-tool="confetti" style="background:#34a853" title="Confetti Burst"></div>
-    <div class="circle-tool" data-tool="fireworks" style="background:#0f9d58" title="Fireworks"></div>
-    <div class="circle-tool" data-tool="sparkles" style="background:#137333" title="Sparkle Effect"></div>
-  `
-  playground.appendChild(menu)
-  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectHappyTool(c.dataset.tool, menu))
-}
+class HappyStuff {
+  static show() {
+    this.setupConfettiThing();
+  }
 
-function selectHappyTool(tool, menu){
-  menu.remove()
-  if(tool==='confetti') showHappyTool()
-  if(tool==='fireworks') showFireworks()  
-  if(tool==='sparkles') showSparkles()
-}
-
-function showHappyTool(){
-  playground.innerHTML='';
-  runHappyTool('confetti');
-  resetBtn.classList.remove('hidden');
-}
-
-function runHappyTool(type) {
-  if (type === 'confetti') {
-    // invisible ground for confetti to land on
-    const ground = document.createElement('div')
-    ground.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;height:50px;background:transparent;z-index:997;'
-    playground.appendChild(ground)
+  static setupConfettiThing() {
+    const playground = document.getElementById('playground');
+    playground.innerHTML = '';
     
-    const dropConfetti = (count=10) => {
-      const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6']
-      // performance: was creating 30 pieces but caused lag on slower devices
-      for(let i=0;i<count;i++){
-        const piece = document.createElement('div')
-        const size = 4 + Math.random()*3
-        const shape = Math.random() > 0.5 ? 'rect' : 'circle' // tried more shapes but fps dropped
-        const startX = Math.random()*window.innerWidth
-        piece.style.cssText = `
-          position:fixed;
-          left:${startX}px;
-          top:-20px;
-          width:${shape === 'circle' ? size : size*2}px;
-          height:${size}px;
-          background:${colors[Math.floor(Math.random()*colors.length)]};
-          border-radius:${shape === 'circle' ? '50%' : '0'};
-          pointer-events:none;
-          z-index:998;
-        `
-        playground.appendChild(piece)
+    // just make it black idk
+    const screen = document.createElement('div');
+    screen.style.cssText = `
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; overflow: hidden; z-index: 999; cursor: crosshair;
+    `;
+    
+    playground.appendChild(screen);
+    
+    // start the confetti dropping
+    this.dropConfettiStuff();
+    
+    // click to make explosion
+    screen.addEventListener('click', (e) => {
+      this.explodeStuff(e.clientX, e.clientY);
+    });
+    
+    this.showResetBtn();
+  }
+
+  static dropConfettiStuff() {
+    const makeStuffFall = () => {
+      const colorz = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#e67e22', '#9b59b6', '#34495e'];
+      
+      // drop 5 pieces at a time
+      for (let i = 0; i < 5; i++) {
+        const confettiPiece = document.createElement('div');
+        const sz = 4 + Math.random() * 6;
+        const isSquare = Math.random() > 0.5;
         
-        const fall = 3000 + Math.random()*2000
-        const drift = (Math.random() - 0.5) * 80
-        const finalX = Math.max(0, Math.min(window.innerWidth, startX + drift))
-        const groundY = window.innerHeight - 50 - Math.random() * 30
+        confettiPiece.style.cssText = `
+          position: fixed; left: ${Math.random() * window.innerWidth}px; top: -20px;
+          width: ${isSquare ? sz * 2 : sz}px; height: ${sz}px;
+          background: ${colorz[Math.floor(Math.random() * colorz.length)]};
+          border-radius: ${isSquare ? '0' : '50%'}; pointer-events: none; z-index: 1000;
+        `;
         
-        piece.animate([
-          { transform:'translateY(0) translateX(0) rotate(0deg)', opacity:1 },
-          { transform:`translateY(${groundY + 20}px) translateX(${drift}px) rotate(${Math.random()*180}deg)`, opacity:0.9 }
-        ], { duration:fall, easing:'ease-in' }).onfinish = () => {
-          // cleanup: found memory leak without removing old pieces after 1000+ confetti
-          piece.style.top = groundY + 'px'
-          piece.style.left = finalX + 'px'
-          piece.style.transform = `rotate(${Math.random()*360}deg)`
-          piece.style.opacity = '0.8'
-          piece.style.transition = 'none'
-        }
+        document.body.appendChild(confettiPiece);
+        
+        const howLongToFall = 3000 + Math.random() * 2000;
+        const sidewaysDrift = (Math.random() - 0.5) * 100;
+        const whereItLands = window.innerHeight - 20 - Math.random() * 40; // ground level varies
+        
+        confettiPiece.animate([
+          { transform: 'translateY(0) translateX(0) rotate(0deg)', opacity: 1 },
+          { transform: `translateY(${whereItLands}px) translateX(${sidewaysDrift}px) rotate(${Math.random() * 360}deg)`, opacity: 0.9 }
+        ], { 
+          duration: howLongToFall, 
+          easing: 'linear' 
+        }).addEventListener('finish', () => {
+          // make it stay on the ground
+          confettiPiece.style.top = whereItLands + 'px';
+          confettiPiece.style.left = (parseInt(confettiPiece.style.left) + sidewaysDrift) + 'px';
+          confettiPiece.style.transform = `rotate(${Math.random() * 360}deg)`;
+          confettiPiece.style.opacity = '0.8';
+        });
       }
-    }
-    dropConfetti(15)
-    setInterval(() => dropConfetti(3), 2500) // reduced from 5 pieces - browser struggled with too many
+    };
     
-    const clickHandler = (e) => {
-      const centerX = e.clientX
-      const centerY = e.clientY
-      
-      const burst = (count=30) => {
-        const colors = ['#e74c3c','#3498db','#f1c40f','#2ecc71','#e67e22','#9b59b6','#34495e']
-        // performance issue: 50+ particles made clicks unresponsive
-        for(let i=0;i<count;i++){
-          const piece = document.createElement('div')
-          const size = 3 + Math.random()*4
-          const isRect = Math.random() > 0.6
-          const spread = Math.random() * Math.PI * 2
-          const force = 80 + Math.random() * 100
-          const dx = Math.cos(spread) * force
-          const dy = Math.sin(spread) * force - 50
-          
-          piece.style.cssText = `
-            position:fixed;
-            left:${centerX}px;
-            top:${centerY}px;
-            width:${isRect ? size*2 : size}px;
-            height:${size}px;
-            background:${colors[Math.floor(Math.random()*colors.length)]};
-            border-radius:${isRect ? '0' : '50%'};
-            pointer-events:none;
-            z-index:998;
-          `
-          playground.appendChild(piece)
-          
-          const duration = 2000 + Math.random() * 1000
-          const finalX = Math.max(0, Math.min(window.innerWidth, centerX + dx / 3))
-          const finalY = window.innerHeight - 50 - Math.random() * 30
-          
-          // found cubic-bezier gives smoother physics than linear ease
-          piece.animate([
-            { transform:'translate(0,0) rotate(0deg)', opacity:1 },
-            { transform:`translate(${dx/3}px,${dy/2}px) rotate(${Math.random()*180}deg)`, opacity:1, offset:0.3 },
-            { transform:`translate(${dx/3}px,${finalY - centerY}px) rotate(${Math.random()*360}deg)`, opacity:0.8 }
-          ], { duration, easing:'cubic-bezier(0.25, 0.46, 0.45, 0.94)' }).onfinish = () => {
-            piece.style.left = finalX + 'px'
-            piece.style.top = finalY + 'px'
-            piece.style.transform = `rotate(${Math.random()*360}deg)`
-            piece.style.opacity = '0.7'
-          }
-        }
-      }
-      
-      burst(35)
-    }
+    // start dropping right away
+    makeStuffFall();
+    // keep dropping more every so often
+    setInterval(makeStuffFall, 800);
+  }
+
+  static explodeStuff(x, y) {
+    const colorz = ['#e74c3c', '#3498db', '#f1c40f', '#2ecc71', '#e67e22', '#9b59b6', '#34495e'];
     
-    document.addEventListener('click', clickHandler)
+    // make like 40 pieces explode out
+    for (let i = 0; i < 40; i++) {
+      const bit = document.createElement('div');
+      const sz = 3 + Math.random() * 5;
+      const isSquareish = Math.random() > 0.6;
+      
+      bit.style.cssText = `
+        position: fixed; left: ${x}px; top: ${y}px;
+        width: ${isSquareish ? sz * 2 : sz}px; height: ${sz}px;
+        background: ${colorz[Math.floor(Math.random() * colorz.length)]};
+        border-radius: ${isSquareish ? '0' : '50%'}; pointer-events: none; z-index: 1001;
+      `;
+      
+      document.body.appendChild(bit);
+      
+      const direction = (Math.PI * 2 * i) / 40;
+      const power = 80 + Math.random() * 120;
+      const xMove = Math.cos(direction) * power;
+      const yMove = Math.sin(direction) * power - 30;
+      
+      const timeToFall = 2000 + Math.random() * 1000;
+      const landingSpot = window.innerHeight - 20 - Math.random() * 40; // where it lands
+      
+      bit.animate([
+        { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${xMove/3}px, ${yMove/2}px) rotate(${Math.random() * 180}deg)`, opacity: 1, offset: 0.3 },
+        { transform: `translate(${xMove/3}px, ${landingSpot - y}px) rotate(${Math.random() * 360}deg)`, opacity: 0.8 }
+      ], { 
+        duration: timeToFall, 
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+      }).addEventListener('finish', () => {
+        // stick it to the ground
+        bit.style.left = (x + xMove/3) + 'px';
+        bit.style.top = landingSpot + 'px';
+        bit.style.transform = `rotate(${Math.random() * 360}deg)`;
+        bit.style.opacity = '0.7';
+      });
+    }
+  }
+
+  static showResetBtn() {
+    const resetBtn = document.getElementById('rst');
+    resetBtn.classList.remove('hidden');
+    resetBtn.onclick = () => location.reload();
   }
 }
 
-function showFireworks(){
-  playground.innerHTML = ''
-  
-  // fireworks with canvas - learned from animation tutorials
-  const canvas = document.createElement('canvas')
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  canvas.style.cssText = 'position:fixed;top:0;left:0;background:#000;'
-  playground.appendChild(canvas)
-  
-  const ctx = canvas.getContext('2d')
-  // performance: tried ctx.imageSmoothingEnabled = false but particles looked pixelated
-  const fireworks = []
-  const particles = []
-  
-  class Firework {
-    constructor(x, y, targetX, targetY) {
-      this.x = x
-      this.y = y
-      this.targetX = targetX
-      this.targetY = targetY
-      this.distanceToTarget = Math.sqrt(Math.pow(targetX - x, 2) + Math.pow(targetY - y, 2))
-      this.distanceTraveled = 0
-      this.coordinates = []
-      this.coordinateCount = 3
-      
-      // populate coordinates with current position
-      // performance: tried coordinateCount = 10 but caused stuttering
-      while (this.coordinateCount--) {
-        this.coordinates.push([this.x, this.y])
-      }
-      
-      this.angle = Math.atan2(targetY - y, targetX - x)
-      this.speed = 2
-      this.acceleration = 1.05
-      this.brightness = Math.random() * 50 + 50
-      this.targetRadius = 1
-    }
-    
-    update(index) {
-      this.coordinates.pop()
-      this.coordinates.unshift([this.x, this.y])
-      
-      if (this.targetRadius < 8) {
-        this.targetRadius += 0.3
-      } else {
-        this.targetRadius = 1
-      }
-      
-      this.speed *= this.acceleration
-      
-      const vx = Math.cos(this.angle) * this.speed
-      const vy = Math.sin(this.angle) * this.speed
-      this.distanceTraveled = Math.sqrt(Math.pow(this.x + vx - this.x, 2) + Math.pow(this.y + vy - this.y, 2))
-      
-      if (this.distanceTraveled >= this.distanceToTarget) {
-        createParticles(this.targetX, this.targetY)
-        fireworks.splice(index, 1)
-      } else {
-        this.x += vx
-        this.y += vy
-      }
-    }
-    
-    draw() {
-      ctx.beginPath()
-      ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1])
-      ctx.lineTo(this.x, this.y)
-      ctx.strokeStyle = `hsl(${Math.random() * 360}, 100%, ${this.brightness}%)`
-      ctx.stroke()
-      
-      ctx.beginPath()
-      ctx.arc(this.targetX, this.targetY, this.targetRadius, 0, Math.PI * 2)
-      ctx.stroke()
-    }
-  }
-  
-  class Particle {
-    constructor(x, y) {
-      this.x = x
-      this.y = y
-      this.coordinates = []
-      this.coordinateCount = 5
-      
-      while (this.coordinateCount--) {
-        this.coordinates.push([this.x, this.y])
-      }
-      
-      this.angle = Math.random() * Math.PI * 2
-      this.speed = Math.random() * 10 + 1
-      this.friction = 0.95
-      this.gravity = 1
-      this.hue = Math.random() * 360
-      this.brightness = Math.random() * 80 + 50
-      this.alpha = 1
-      this.decay = Math.random() * 0.03 + 0.015
-    }
-    
-    update(index) {
-      this.coordinates.pop()
-      this.coordinates.unshift([this.x, this.y])
-      
-      this.speed *= this.friction
-      this.x += Math.cos(this.angle) * this.speed
-      this.y += Math.sin(this.angle) * this.speed + this.gravity
-      this.alpha -= this.decay
-      
-      if (this.alpha <= this.decay) {
-        particles.splice(index, 1)
-      }
-    }
-    
-    draw() {
-      ctx.beginPath()
-      ctx.moveTo(this.coordinates[this.coordinates.length - 1][0], this.coordinates[this.coordinates.length - 1][1])
-      ctx.lineTo(this.x, this.y)
-      ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`
-      ctx.stroke()
-    }
-  }
-  
-  function createParticles(x, y) {
-    let particleCount = 30 // was 50 but fps dropped below 30 on older devices
-    while (particleCount--) {
-      particles.push(new Particle(x, y))
-    }
-  }
-  
-  function loop() {
-    requestAnimationFrame(loop)
-    
-    // performance: destination-out blend mode is expensive but needed for trails
-    ctx.globalCompositeOperation = 'destination-out'
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.globalCompositeOperation = 'lighter'
-    
-    let i = fireworks.length
-    while (i--) {
-      fireworks[i].draw()
-      fireworks[i].update(i)
-    }
-    
-    let j = particles.length
-    while (j--) {
-      particles[j].draw()
-      particles[j].update(j)
-    }
-    
-    // auto launch fireworks
-    // performance: 0.05 probability keeps frame rate smooth vs 0.1 which lagged
-    if (Math.random() < 0.05) {
-      fireworks.push(new Firework(
-        canvas.width / 2,
-        canvas.height,
-        Math.random() * canvas.width,
-        Math.random() * canvas.height / 2
-      ))
-    }
-  }
-  
-  canvas.addEventListener('click', (e) => {
-    fireworks.push(new Firework(
-      canvas.width / 2,
-      canvas.height,
-      e.clientX,
-      e.clientY
-    ))
-  })
-  
-  loop()
-  
-  resetBtn.classList.remove('hidden')
-  resetBtn.onclick = () => location.reload()
-}
-
-function showSparkles(){
-  playground.innerHTML = ''
-  
-  // sparkle trail effect following mouse
-  const sparkles = []
-  // performance note: DOM manipulation for each sparkle is expensive but CSS animations are smooth
-  
-  function createSparkle(x, y) {
-    const sparkle = document.createElement('div')
-    const size = Math.random() * 6 + 2
-    
-    sparkle.style.cssText = `
-      position: fixed;
-      width: ${size}px;
-      height: ${size}px;
-      background: white;
-      border-radius: 50%;
-      pointer-events: none;
-      left: ${x}px;
-      top: ${y}px;
-      box-shadow: 0 0 ${size * 2}px rgba(255, 255, 255, 0.8);
-      z-index: 1000;
-    `
-    
-    playground.appendChild(sparkle)
-    sparkles.push(sparkle)
-    
-    // animate sparkle - learned GPU acceleration helps with many small animations
-    sparkle.animate([
-      { opacity: 1, transform: 'scale(0)' },
-      { opacity: 0.8, transform: 'scale(1)' },
-      { opacity: 0, transform: 'scale(0)' }
-    ], {
-      duration: 1000,
-      easing: 'ease-out'
-    }).onfinish = () => {
-      sparkle.remove()
-      // memory management: remove from array to prevent memory leaks with thousands of sparkles
-      const index = sparkles.indexOf(sparkle)
-      if (index > -1) sparkles.splice(index, 1)
-    }
-  }
-  
-  let mouseTrail = []
-  
-  playground.addEventListener('mousemove', (e) => {
-    mouseTrail.push({ x: e.clientX, y: e.clientY, time: Date.now() })
-    
-    // limit trail length - found 20+ points cause lag spikes
-    if (mouseTrail.length > 10) {
-      mouseTrail.shift()
-    }
-    
-    // create sparkles along trail - 0.3 probability found through fps testing
-    if (Math.random() < 0.3) {
-      const trailPoint = mouseTrail[Math.floor(Math.random() * mouseTrail.length)]
-      createSparkle(
-        trailPoint.x + (Math.random() - 0.5) * 20,
-        trailPoint.y + (Math.random() - 0.5) * 20
-      )
-    }
-  })
-  
-  playground.addEventListener('click', (e) => {
-    // burst of sparkles on click - staggered timing prevents frame drops
-    for (let i = 0; i < 15; i++) {
-      setTimeout(() => {
-        createSparkle(
-          e.clientX + (Math.random() - 0.5) * 60,
-          e.clientY + (Math.random() - 0.5) * 60
-        )
-      }, i * 50)
-    }
-  })
-  
-  const instructions = document.createElement('div')
-  instructions.style.cssText = `
-    position: fixed;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-size: 20px;
-    text-align: center;
-    font-family: Poppins;
-  `
-  instructions.textContent = 'Move your mouse to create sparkles! ✨'
-  playground.appendChild(instructions)
-  
-  resetBtn.classList.remove('hidden')
-  resetBtn.onclick = () => location.reload()
-} 
+window.HappyStuff = HappyStuff;
+window.HappyTools = HappyStuff;

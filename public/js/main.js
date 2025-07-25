@@ -1,6 +1,4 @@
-const modal = document.getElementById('mdl')
-const moodBtns = [...document.querySelectorAll('.mBtn')]
-let selectedMood = null
+// using variables from client.js to avoid duplicate declarations
 
 function getColors(){
   if(selectedMood === 'angry')
@@ -8,14 +6,10 @@ function getColors(){
   return ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
 }
 
-const cf = document.getElementById('cf')
-const inp = document.getElementById('cInp')
-const go = document.getElementById('goBtn')
-const pg = document.getElementById('playground')
-const rst = document.getElementById('rst')
-const help = document.getElementById('tutorial')
+// using variables from client.js to avoid duplicates
+// Variables already declared in client.js: pg, playground, rst, help, etc.
 
-help.onclick = showTutorial
+// help.onclick is set in client.js
 
 function showTutorial(){
   if(document.querySelector('#tutorialPopup')) return
@@ -24,7 +18,7 @@ function showTutorial(){
     ['#fbbc04','anxiety'],
     ['#fdd835','happiness'],
     ['#34a853','calm'],
-    ['#4285f4','thoughtful'],
+    ['#4285f4','sad'],
     ['#a142f4','creative']
   ]
   const popup=document.createElement('div')
@@ -41,27 +35,8 @@ function showTutorial(){
   document.body.appendChild(popup)
 }
 
-moodBtns.forEach(btn=>btn.onclick = () => {
-  selectedMood = btn.dataset.mood
-  modal.classList.add('hidden')
-  cf.classList.remove('hidden')
-  inp.focus()
-  document.body.className = `mood-${selectedMood}`
-})
-
-go.onclick = () => {
-  if(!inp.value.trim()) return
-  cf.classList.add('hidden')
-  if(selectedMood === 'angry'){
-    showAngerTools()
-  }else if(selectedMood === 'anxiety'){
-    showAnxietyTools()
-  }else if(selectedMood === 'happy'){
-    showHappyTool()
-  }else{
-    showBreathTool()
-  }
-}
+// mood button handlers are in client.js to avoid conflicts
+// submit button handler is in mood-handler.js to include sad mood
 
 function showAngerTools(){
   const menu = document.createElement('div')
@@ -126,11 +101,11 @@ function showStickyNote(){
 
 function showBreathTool(){
   const txt = document.createElement('div')
-  txt.textContent = 'Inhale…'
+  txt.textContent = 'inhale…'
   txt.style = 'position:absolute;top:50%;left:50%;translate:-50% -50%;font-size:2rem;'
   pg.appendChild(txt)
   let inhaling = false
-  const timer = setInterval(()=>{ txt.textContent = inhaling?'Inhale…':'Exhale…'; inhaling=!inhaling }, 3000)
+  const timer = setInterval(()=>{ txt.textContent = inhaling?'inhale…':'exhale…'; inhaling=!inhaling }, 3000)
   rst.classList.remove('hidden')
   rst.onclick = () => { clearInterval(timer); location.reload() }
 }

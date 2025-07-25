@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- Grass base -->
+  <path d="M20 180 Q30 170 40 175 Q50 165 60 170 Q70 160 80 165 Q90 155 100 160 Q110 155 120 160 Q130 165 140 170 Q150 165 160 170 Q170 175 180 180 L180 200 L20 200 Z" fill="#4CAF50"/>
+  
+  <!-- Main grass blades -->
+  <path d="M100 180 Q95 150 90 120 Q88 100 85 80 Q82 60 80 40 Q78 20 75 10" stroke="#66BB6A" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M100 180 Q105 150 110 120 Q112 100 115 80 Q118 60 120 40 Q122 20 125 10" stroke="#66BB6A" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M100 180 Q100 150 100 120 Q100 100 100 80 Q100 60 100 40 Q100 20 100 5" stroke="#4CAF50" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <path d="M100 180 Q108 155 115 130 Q120 110 125 90 Q130 70 135 50 Q140 30 145 15" stroke="#66BB6A" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M100 180 Q92 155 85 130 Q80 110 75 90 Q70 70 65 50 Q60 30 55 15" stroke="#66BB6A" stroke-width="5" fill="none" stroke-linecap="round"/>
+  
+  <!-- More grass blades -->
+  <path d="M100 180 Q115 160 125 140 Q135 120 140 100 Q145 80 150 60 Q155 40 160 25" stroke="#81C784" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M100 180 Q85 160 75 140 Q65 120 60 100 Q55 80 50 60 Q45 40 40 25" stroke="#81C784" stroke-width="4" fill="none" stroke-linecap="round"/>
+  
+  <!-- Eyes -->
+  <circle cx="90" cy="100" r="8" fill="#1B5E20"/>
+  <circle cx="110" cy="100" r="8" fill="#1B5E20"/>
+  <circle cx="92" cy="98" r="3" fill="#4CAF50"/>
+  <circle cx="112" cy="98" r="3" fill="#4CAF50"/>
+  
+  <!-- Mouth -->
+  <path d="M85 120 Q100 135 115 120" stroke="#2E7D32" stroke-width="4" fill="none" stroke-linecap="round"/>
+</svg>

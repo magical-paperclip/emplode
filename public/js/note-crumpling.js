@@ -33,7 +33,7 @@ function showNoteCrumpling(){
   bg.appendChild(text)
   
   // create simple squares scattered around
-  // BREAKTHROUGH: instead of voronoi cells, just make random squares
+  // BREAKTHROUGH: instead of voronoi cells, just make random squares bc its prob easier to learn this time
   // much more reliable than depending on external libraries
   const squares = []
   for(let i = 0; i < 100; i++) {

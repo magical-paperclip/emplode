@@ -4,23 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>emplode</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 <body>
   <div id="mdl" class="modal">
     <h1 class="ttl">hru?</h1>
     <div class="gridy">
-      <button class="mBtn" data-mood="angry" style="--clr:#ea4335" aria-label="Angry"></button>
-      <button class="mBtn" data-mood="anxiety" style="--clr:#fbbc04" aria-label="Anxiety"></button>
-      <button class="mBtn" data-mood="happy" style="--clr:#fdd835" aria-label="Happy"></button>
-      <button class="mBtn" data-mood="calm" style="--clr:#34a853" aria-label="Calm"></button>
-      <button class="mBtn" data-mood="thoughtful" style="--clr:#4285f4" aria-label="Thoughtful"></button>
-      <button class="mBtn" data-mood="creative" style="--clr:#a142f4" aria-label="Creative"></button>
+      <button class="mBtn" data-mood="angry" style="--clr:#ea4335" aria-label="angry"></button>
+      <button class="mBtn" data-mood="anxiety" style="--clr:#fbbc04" aria-label="anxiety"></button>
+      <button class="mBtn" data-mood="happy" style="--clr:#fdd835" aria-label="happy"></button>
+      <button class="mBtn" data-mood="calm" style="--clr:#34a853" aria-label="calm"></button>
+      <button class="mBtn" data-mood="sad" style="--clr:#4285f4" aria-label="sad"></button>
+      <button class="mBtn" data-mood="creative" style="--clr:#a142f4" aria-label="creative"></button>
     </div>
   </div>
 
   <div id="cf" class="hidden cause-wrapper">
-    <input id="cInp" placeholder="Cause?" />
+    <input id="cInp" placeholder="cause?" />
     <button id="goBtn">go</button>
   </div>
 
@@ -28,21 +28,22 @@
   <button id="rst" class="hidden reset">again</button>
   <button id="tutorial" class="tutorial">?</button>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
+  
+  
+  <script src="js/tutorial-system.js"></script>
+  <script src="js/mood-handler.js"></script>
+  
+
   <script src="js/anger-tools.js"></script>
   <script src="js/anxiety-tools.js"></script>
   <script src="js/happy-tools.js"></script>
-  <script src="js/text-boxes.js"></script>
-  <script src="js/wreck.js"></script>
-  <script src="js/voronoi.js"></script>
-  <script src="js/main.js"></script>
-  <script src="js/anxiety.js"></script>
-  <script src="js/happy.js"></script>
-  <script src="js/rage.js"></script>
-  <script src="js/mood-handler.js"></script>
-  <script src="js/note-crumpling.js"></script>
-  <script src="js/tutorial.js"></script>
-  <script src="client.js"></script>
+  <script src="js/sad-tools.js"></script>
+  <script src="js/thoughtful-tools.js"></script>
+  <script src="js/creative-tools.js"></script>
+  
+  
+  <script src="js/app.js"></script>
 </body>
-</html> 
+</html>

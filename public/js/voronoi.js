@@ -71,7 +71,7 @@ function showNoteCrumpling(){
   
   // add simple instruction
   const instruction = document.createElement('div')
-  instruction.textContent = 'Click anywhere to crumple'
+  instruction.textContent = 'click anywhere to crumple'
   instruction.style.cssText = `
     position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
     color:#999;font-size:16px;font-family:Poppins;

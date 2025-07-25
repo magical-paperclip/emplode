@@ -20,7 +20,7 @@ function showJournal(){
   box.className = 'journal-container journal-full'
 
   const txt = document.createElement('textarea')
-  txt.placeholder = 'Write it out…'
+  txt.placeholder = 'write it out…'
   txt.className = 'journal-input'
   txt.style.flex='1'
   txt.style.minHeight='0'

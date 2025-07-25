@@ -2,6 +2,7 @@ const modal = document.getElementById('mdl')
 const moodBtns = [...document.querySelectorAll('.mBtn')]
 let selectedMood = null
 const cf = document.getElementById('cf')
+const resetBtn = document.getElementById('rst')
 
 function getColors(){
   if(selectedMood === 'angry')
@@ -9,9 +10,12 @@ function getColors(){
   return ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
 }
 
+// playground element - used by multiple files
+var pg = document.getElementById('playground')
+var playground = pg // alias for compatibility
+
 const inp = document.getElementById('cInp')
 const go = document.getElementById('goBtn')
-var pg = document.getElementById('playground')
 let rst = document.getElementById('rst')
 const help = document.getElementById('tutorial')
 let isDrawing = false
@@ -25,7 +29,7 @@ function showTutorial(){
     ['#fbbc04','anxiety'],
     ['#fdd835','happiness'],
     ['#34a853','calm'],
-    ['#4285f4','thoughtful'],
+    ['#4285f4','sad'],
     ['#a142f4','creative']
   ]
   const popup=document.createElement('div');
@@ -33,12 +37,23 @@ function showTutorial(){
   popup.className='tutorial-modal';
   popup.innerHTML=`
     <div class="tutorial-box">
-      <h2 style="margin:0;text-align:center">mood colours</h2>
-      ${colors.map(([hex,name])=>`<div class="tutorial-row"><div class="tutorial-circle" style="background:${hex}"></div><span>${name}</span></div>`).join('')}
-      <button class="tutorial-close">close</button>
+      <h2 style="margin:0 0 1rem 0;text-align:center;color:#fff;font-size:1.8rem;">mood guide</h2>
+      <p style="color:rgba(255,255,255,0.7);text-align:center;margin-bottom:1.5rem;font-size:1rem;">click a color to explore your feelings</p>
+      <div class="mood-guide-grid">
+        ${colors.map(([hex,name])=>`
+          <div class="mood-guide-item">
+            <div class="mood-guide-dot" style="background:${hex}"></div>
+            <span class="mood-guide-text">${name}</span>
+          </div>
+        `).join('')}
+      </div>
+      <button class="tutorial-close">got it!</button>
     </div>
   `;
   popup.querySelector('.tutorial-close').onclick=()=>popup.remove();
+  popup.onclick = (e) => {
+    if(e.target === popup) popup.remove();
+  };
   document.body.appendChild(popup);
 }
 
@@ -50,19 +65,7 @@ moodBtns.forEach(btn=>btn.onclick = () => {
   document.body.className = `mood-${selectedMood}`;
 });
 
-go.onclick = () => {
-  if(!inp.value.trim()) return;
-  cf.classList.add('hidden');
-  
-  if(selectedMood === 'angry'){
-    showAngerTools();
-  }else if(selectedMood === 'anxiety'){
-    showAnxietyTools();
-  }else if(selectedMood === 'happy'){
-    showHappyTool();
-  }else{
-    showBreathTool();
-  }
+// submit button handler is in mood-handler.js to include sad mood
 
   function showAnxietyTools(){
     let menu = document.createElement('div');
@@ -437,8 +440,6 @@ go.onclick = () => {
        drawRainbow()
      }
   }
-
-}
 
 function showTools(mood){
   playground.innerHTML = ''

@@ -1,40 +1,89 @@
-// mood handling - using modal from client.js to avoid duplicate declaration
-const moodBtns = [...document.querySelectorAll('.mBtn')]
-const causeForm = document.getElementById('cf')
-const causeInput = document.getElementById('cInp')
-const submitBtn = document.getElementById('goBtn')
-const playground = document.getElementById('playground')
-const resetBtn = document.getElementById('rst')
-let selectedMood = null
+// mood router thing
+// figures out what tool to show based on how ur feeling
 
-function getColors(){
-  if(selectedMood === 'angry')
-    return ['#b71c1c','#c62828','#d32f2f','#e53935','#f44336','#ff5252']
-  return ['#ea4335','#fbbc04','#fdd835','#34a853','#4285f4','#a142f4']
-}
+class MoodHandler {
+  static handleSubmit(mood, cause) {
+    if (!cause.trim()) return;
+    
+    const form = document.getElementById('cf');
+    form.classList.add('hidden');
+    
+    this.goToMoodThing(mood);
+  }
 
-moodBtns.forEach(btn=>btn.onclick = () => {
-  selectedMood = btn.dataset.mood
-  document.getElementById('mdl').classList.add('hidden')
-  causeForm.classList.remove('hidden')
-  causeInput.focus()
-  
-  document.body.className = `mood-${selectedMood}`
-})
+  static goToMoodThing(mood) {
+    console.log('going to mood:', mood);
+    
+    const place = document.getElementById('playground');
+    place.innerHTML = '';
 
-submitBtn.onclick = () => {
-  if(!causeInput.value.trim()) return
-  causeForm.classList.add('hidden')
-  
-  if(selectedMood === 'angry'){
-    showAngerTools()
-  }else if(selectedMood === 'anxiety'){
-    showAnxietyTools()
-  }else if(selectedMood === 'happy'){
-    showHappyTool()
-  }else{
-    showBreathTool()
+    switch (mood) {
+      case 'angry':
+        console.log('loading anger stuff');
+        if (window.AngerStuff) {
+          AngerStuff.show();
+        } else {
+          console.log('AngerStuff not found, trying AngerTools');
+          AngerTools.show();
+        }
+        break;
+      case 'anxiety':
+        AnxietyTools.show();
+        break;
+      case 'happy':
+        if (window.HappyTools) {
+          HappyTools.show();
+        }
+        break;
+      case 'sad':
+        if (window.SadStuff) {
+          SadStuff.show();
+        } else {
+          console.log('SadStuff not found, trying SadTools');
+          SadTools.show();
+        }
+        break;
+      case 'calm':
+        ThoughtfulTools.show();
+        break;
+      case 'creative':
+        CreativeTools.show();
+        break;
+      default:
+        this.showBreathingThing();
+    }
+  }
+
+  static showBreathingThing() {
+    const place = document.getElementById('playground');
+    const resetBtn = document.getElementById('rst');
+    
+    const breathText = document.createElement('div');
+    breathText.textContent = 'inhale...';
+    breathText.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      color: white;
+    `;
+    
+    playground.appendChild(breathText);
+    
+    let isInhaling = true;
+    const breathTimer = setInterval(() => {
+      breathText.textContent = isInhaling ? 'inhale...' : 'exhale...';
+      isInhaling = !isInhaling;
+    }, 3000);
+    
+    resetBtn.classList.remove('hidden');
+    resetBtn.onclick = () => {
+      clearInterval(breathTimer);
+      location.reload();
+    };
   }
 }
 
-resetBtn.onclick = () => location.reload() 
+// Make available globally
+window.MoodHandler = MoodHandler; 

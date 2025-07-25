@@ -9,7 +9,7 @@ function showTutorial(){
     ['#fbbc04','anxiety'],
     ['#fdd835','happiness'],
     ['#34a853','calm'],
-    ['#4285f4','thoughtful'],
+    ['#4285f4','sad'],
     ['#a142f4','creative']
   ]
   const overlay=document.createElement('div')
