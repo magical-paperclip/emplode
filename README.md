@@ -77,9 +77,14 @@ tried to match physics to emotions like destructive stuff for anger
 ## resources
 
 - [how we feel](https://howwefeel.org/) - original mood app that gave me the idea
+<<<<<<< HEAD
 - [sics-ground](https://github.com/magical-paperclip/sics-ground) - my previous exprience with matter
 <<<<<<< HEAD
 - nature of code book - helped with animation math
 =======
 - nature of code book - helped with animation math
 >>>>>>> 6dd569d (fixed readme wording for wrecking ball)
+=======
+- [sics-ground](https://github.com/magical-paperclip/sics-ground) - learned matter.js here first
+- nature of code book - helped with animation math
+>>>>>>> 279b277 (typo fix)
