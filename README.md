@@ -1,117 +1,77 @@
 # emplode
 
-an interactive emotion processing app that goes way beyond basic mood tracking. instead of just clicking buttons, you can actually *do* something with your emotions - blast things when angry, crumple notes when anxious, watch fireworks when happy.
+an interactive emotions app
 
-inspired by [how we feel](https://howwefeel.org/) but with a focus on interactive coping tools rather than data collection.
+uses javascript and matter.js for physics 
 
-## ✨ features
+## features
 
-**anger tools:**
-- **blast system** - click to send physics objects flying with realistic force falloff
-- **wrecking ball** - swing a physics-based chain to destroy blocks
+**angry mode:**
+- click anywhere and objects fly away with physics
+- wrecking ball on a chain that u can swing around 
 
-**anxiety tools:**  
-- **journal** - persistent textarea with color theming (localStorage)
-- **whiteboard** - free-draw canvas with color palette
-- **breathing exercise** - guided inhale/exhale animation
-- **note crumpling** - drag and crumple sticky notes with voronoi tessellation
+**anxiety mode:**  
+- journal that saves automatically 
+- drawing pad with different colors
+- paper crumpling animation using voronoi diagrams (found this in a tutorial)
+- breathing thing with smooth timing
 
-**happiness tools:**
-- **fireworks** - click-triggered particle explosions with HSL color cycling
-- **confetti** - gravity-based particle system with realistic physics
-- **sparkle trails** - mouse-following particle effects
+**happy mode:**
+- confetti particles that fall with gravity
+- fireworks when you click
+- mouse trails
+- lots of colors and animations
 
-## 🚀 quick start
+## setup
 
 ```bash
+git clone https://github.com/magical-paperclip/emplode.git
+cd emplode
 npm install
 npm start
 ```
 
-visit **http://localhost:3000** and start processing emotions interactively.
+go to localhost:3000
 
-## 🎯 why this exists
+## tech stack
 
-most mood tracking apps are just glorified surveys. but emotions aren't data points - they're physical, messy, and need expression. this app lets you:
+- vanilla javascript (no frameworks)
+- matter.js for physics engine
+- html5 canvas for graphics
+- node.js backend but everything works in browser
 
-- **physically interact** with your emotions instead of just logging them
-- **actually release tension** through satisfying physics interactions  
-- **create something** (drawings, journal entries) during emotional processing
-- **experience immediate feedback** rather than long-term analytics
+had to learn about:
+- keeping 60fps without lag
+- object pooling so garbage collection doesnt freeze everything  
+- making collision detection fast enough
+- using gpu acceleration when possible
 
-## 🛠 technical stack
+## development log
 
-- **matter.js** - 2d physics engine for realistic object interactions
-- **paper.js** - vector graphics for smooth visual effects
-- **canvas api** - hardware-accelerated particle systems and animations
-- **vanilla javascript** - no framework overhead, just core browser APIs
-- **node.js + socket.io** - optional real-time features (runs offline-first)
+check [journal.md](./journal.md) for my notes while building:
 
-built with performance in mind: 60fps animations, object pooling for particles, efficient collision detection.
+- learning vector math for physics (still dont fully get it)
+- getting smooth 60fps animations 
+- dealing with different coordinate systems between libraries
+- preventing memory leaks with too many particles
+- using browser devtools to find performance issues
 
-## 📝 development blog
 
-want to see how this was built? check out [journal.md](./journal.md) for a detailed account of the development process, including:
+## development
 
-- learning physics programming from scratch
-- implementing complex canvas animations  
-- solving performance problems with particle systems
-- dealing with coordinate system hell across multiple libraries
-- the emotional design decisions behind each interaction
-
-it's written as a personal journey through web development, physics simulation, and the realization that interactive experiences can be way more engaging than traditional form-based interfaces.
-
-## 🎮 how it works
-
-no build step required - just edit files in `public/` and refresh. the app is intentionally simple to modify and experiment with.
-
-**mood selection** → **interactive tools** → **emotional processing**
-
-each emotion category unlocks different types of interactions designed to match how those emotions actually feel in your body.
-
-## 🤝 inspiration & references
-
-- [how we feel](https://howwefeel.org/) - original inspiration for clean mood tracking  
-- [sics-ground](https://github.com/magical-paperclip/sics-ground) - foundation for matter.js physics knowledge
-- nature of code - principles for natural-feeling animations and particle systems
-
----
-
-*sometimes the best way to process emotions is to literally throw things around on a screen.*ood playground
-
-a tiny browser toy: pick a colour circle that matches your vibe, fill in what’s bugging you, then mess with a couple of quick coping tools.
-
-* **crumple note** – drag the sticky around, double-click to crunch it out of sight.
-* **deep breath** – inhale / exhale loop that chills in the middle until you reset.
-
-runs locally in the browser – the node socket backend is still there but optional.
-
-## run
+no build process, just edit and refresh browser:
 
 ```bash
-npm install
-npm start
+# edit files in public/js/
+# refresh page to see changes
 ```
-then hit **http://localhost:3000**.
 
-## tweak stuff
+flow: pick emotion -> load module -> interactive tools -> save data
 
-no build step. just poke files in `public/` and refresh. 
+tried to match physics to emotions like destructive stuff for anger
 
-## how each mood thing kinda works (ya, real quick)
+## resources
 
-anger – gets a lil circle menu, pick blast (click drags stuff) or wrecking ball (swing chain) – physics by matter.js.
-
-anxiety – shows two buttons:
-* journal – textarea that saves to localstorage, palette for text colours.
-* whiteboard – free-draw canvas w/ colour dots, clear+done buttons.
-
-happy – straight into confetti: click anywhere → we spawn 60-ish random bits (tiny divs) w/ gravity + drag. also ambient fall from top so it feels alive. no other toys now.
-
-calm / thoughtful etc – just the breathe loop (inhale / exhale text in centre).
-
-sticky note tool – writes your cause on a yellow note, you can drag or double-click to crumple.
-
-reset button top right just reloads page. nothing fancy.
-
-server side is plain socket.io (see backend/server.js) but most toys run fully in the browser; no db, no build, messy on purpose. 
+- [how we feel](https://howwefeel.org/) - original mood app that gave me the idea
+- [sics-ground](https://github.com/magical-paperclip/sics-ground) - my previous exprience with matter
+- nature of code book - helped with animation math
