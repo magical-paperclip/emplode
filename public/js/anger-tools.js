@@ -1,155 +1,200 @@
-// Learning matter.js physics for interactive destruction - anger tools
-// figuring out how to make satisfying destruction effects
+/**
+ * anger management tools
+ * physics-based destruction and release activities
+ */
 
-function showAngerTools(){
-  const menu = document.createElement('div')
-  menu.id = 'circleMenu'
-  menu.innerHTML = `
-    <div class="circle-tool" data-tool="rage" style="background:#ea4335" title="Anger Blast"></div>
-    <div class="circle-tool" data-tool="wreck" style="background:#c62828" title="Wrecking Ball"></div>
-    <div class="circle-tool" data-tool="voronoi" style="background:#b71c1c" title="Voronoi Crumple"></div>
-    <div class="circle-tool" data-tool="textBox" style="background:#d32f2f" title="Text Physics"></div>
-  `
-  playground.appendChild(menu)
-  ;[...menu.querySelectorAll('.circle-tool')].forEach(c=>c.onclick = () => selectCircleTool(c.dataset.tool, menu))
-}
+class AngerTools {
+  static show() {
+    console.log('anger tools: initializing wrecking ball');
+    const playground = document.getElementById('playground');
+    playground.innerHTML = '';
+    
+    // direct route to wrecking ball physics simulation
+    this.showWreckingBall();
+  }
 
-function selectCircleTool(tool,menu){
-  menu.remove()
-  if(tool==='rage')    showRageTool()
-  if(tool==='textBox') showTextBoxes()
-  if(tool==='wreck')    showWreckingBall()
-  if(tool==='voronoi') showNoteCrumpling()
-}
+  static showWreckingBall() {
+    const playground = document.getElementById('playground');
+    
+    // verify matter.js library availability
+    if (!window.Matter) {
+      console.error('matter.js library not loaded');
+      playground.innerHTML = `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    color: #e8eaed; font-family: 'Poppins', monospace; text-align: center;">
+          <h3>physics engine unavailable</h3>
+          <p>matter.js library failed to initialize</p>
+          <p style="font-size: 0.8rem; opacity: 0.7;">check network connection and reload</p>
+        </div>
+      `;
+      this.showResetButton();
+      return;
+    }
 
-function showRageTool(){
-  playground.innerHTML = ''
-  const { Engine, Render, World, Bodies, Mouse, MouseConstraint, Body, Vector } = Matter
+    console.log('matter.js detected, initializing physics world');
 
-  const engine = Engine.create()
-  const width = window.innerWidth
-  const height = window.innerHeight
+    try {
+      // destructure matter.js components
+      const { Engine, Render, World, Bodies, Mouse, MouseConstraint } = Matter;
+      
+      // validate required components
+      if (!Engine || !Render || !World || !Bodies) {
+        throw new Error('missing critical matter.js components');
+      }
+      
+      // create physics engine instance
+      const engine = Engine.create();
+      const world = engine.world;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
 
-  const render = Render.create({
-    element: playground,
-    engine,
-    options:{ width, height, wireframes:false, background:'transparent' }
-  })
+      console.log(`physics world dimensions: ${width}x${height}`);
 
-  const walls = [
-    Bodies.rectangle(width/2, height+25, width, 50, { isStatic:true }),
-    Bodies.rectangle(width/2, -25, width, 50, { isStatic:true }),
-    Bodies.rectangle(-25, height/2, 50, height, { isStatic:true }),
-    Bodies.rectangle(width+25, height/2, 50, height, { isStatic:true })
-  ]
-  World.add(engine.world, walls)
+      // configure matter.js renderer
+      const render = Render.create({
+        element: playground,
+        engine: engine,
+        options: {
+          width: width,
+          height: height,
+          wireframes: false,
+          background: 'transparent',
+          showVelocity: false,
+          showAngleIndicator: false,
+          pixelRatio: 'auto'
+        }
+      });
 
-  const boxSize = 36 // tried 32 but too small, 40 felt chunky
-  const spacing = 4 // was 2 originally but boxes stuck together
-  const columns = Math.floor(width / (boxSize+spacing)) - 2
-  const rows = Math.floor(height / ((boxSize+spacing) * 1.2))
-  const palette = getColors()
-  // grid layout algorithm from Stack Overflow - way cleaner than my random approach
-  for(let i=0;i<columns;i++){
-    for(let j=0;j<rows;j++){
-      const color = palette[Math.floor(Math.random()*palette.length)]
-      const x = boxSize + i*(boxSize+spacing)
-      const y = height - 60 - j*(boxSize+spacing)
-      const box = Bodies.rectangle(x, y, boxSize, boxSize, {
-        restitution:0.4, // was 0.6 but boxes bounced forever
-        render:{ fillStyle: color }
-      })
-      World.add(engine.world, box)
+      // ensure canvas has proper mouse event handling
+      render.canvas.style.cursor = 'grab';
+      render.canvas.addEventListener('mousedown', () => {
+        render.canvas.style.cursor = 'grabbing';
+      });
+      render.canvas.addEventListener('mouseup', () => {
+        render.canvas.style.cursor = 'grab';
+      });
+
+      // create static ground boundary
+      const ground = Bodies.rectangle(width / 2, height - 15, width, 30, { 
+        isStatic: true,
+        render: { fillStyle: '#3c4043' }
+      });
+      
+      World.add(world, [ground]);
+
+      // generate destructible objects array
+      const colors = ['#ea4335', '#fbbc04', '#34a853', '#4285f4', '#a142f4'];
+      const boxes = [];
+      
+      for (let i = 0; i < 12; i++) {
+        const box = Bodies.rectangle(
+          200 + (i * 60), 
+          height - 80, 
+          45, 
+          45, 
+          {
+            restitution: 0.7,
+            friction: 0.1,
+            render: { fillStyle: colors[i % colors.length] }
+          }
+        );
+        boxes.push(box);
+      }
+      
+      World.add(world, boxes);
+
+      // create wrecking ball object
+      const wreckingBall = Bodies.circle(150, 100, 25, {
+        density: 0.004,
+        restitution: 0.9,
+        frictionAir: 0.01,
+        render: { fillStyle: '#ea4335' }
+      });
+      World.add(world, wreckingBall);
+
+      // start physics simulation
+      Engine.run(engine);
+      Render.run(render);
+
+      // implement mouse interaction system after render is created
+      if (Mouse && MouseConstraint) {
+        const mouse = Mouse.create(render.canvas);
+        const mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+            stiffness: 0.2,
+            render: { visible: false }
+          }
+        });
+        World.add(world, mouseConstraint);
+        
+        // keep the mouse in sync with rendering offset
+        render.mouse = mouse;
+        
+        // add debug logging for mouse events
+        render.canvas.addEventListener('mousedown', (e) => {
+          console.log('dragging wrecking ball');
+        });
+        
+        console.log('mouse interaction enabled for canvas');
+      } else {
+        console.error('Mouse or MouseConstraint not available from Matter.js');
+      }
+
+      console.log('physics simulation active');
+
+      // display usage instructions
+      this.addInstructions();
+      this.showResetButton();
+
+    } catch (error) {
+      console.error('physics engine initialization failed:', error);
+      playground.innerHTML = `
+        <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+                    color: #e8eaed; font-family: 'Poppins', monospace; text-align: center;">
+          <h3>simulation error</h3>
+          <p>failed to initialize physics engine</p>
+          <p style="font-size: 0.8rem; opacity: 0.7;">error: ${error.message}</p>
+        </div>
+      `;
+      this.showResetButton();
     }
   }
 
-  const mouse = Mouse.create(render.canvas)
-  const mouseConstraint = MouseConstraint.create(engine, { mouse, constraint:{ stiffness:0.2, render:{ visible:false } } }) // was 0.8 but dragging felt weird
-  World.add(engine.world, mouseConstraint)
-  render.mouse = mouse
-
-  render.canvas.addEventListener('click', (e)=>{
-    const rect = render.canvas.getBoundingClientRect()
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const blastPower = 0.08 // started at 0.1 but too violent, 0.05 too weak
-    const blastRadius = 150 // tried 100 first but felt limited, 200 too huge
-    engine.world.bodies.forEach(body=>{
-      if(body.isStatic) return
-      const distance = Vector.magnitude({ x: body.position.x - x, y: body.position.y - y })
-      if(distance < blastRadius){
-        const force = Vector.mult(Vector.normalise({ x: body.position.x - x, y: body.position.y - y }), blastPower)
-        Body.applyForce(body, body.position, force)
-      }
-    })
-    const blastEffect = document.createElement('div')
-    blastEffect.style = `position:absolute;left:${x}px;top:${y}px;width:20px;height:20px;border-radius:50%;background:#ea4335;transform:translate(-50%,-50%);opacity:0.6;pointer-events:none;`
-    playground.appendChild(blastEffect)
-    blastEffect.animate([
-      { transform:'translate(-50%,-50%) scale(0)', opacity:0.6 },
-      { transform:`translate(-50%,-50%) scale(${blastRadius/10})`, opacity:0 }
-    ], { duration:600, easing:'ease-out' }).onfinish = () => blastEffect.remove() // 400ms felt rushed, 800ms dragged
-  })
-
-  Engine.run(engine)
-  Render.run(render)
-
-  resetBtn.classList.remove('hidden')
-  resetBtn.onclick = () => location.reload()
-} 
-
-function showWreckingBall(){
-  playground.innerHTML = ''
-  const { Engine, Render, World, Bodies, Mouse, MouseConstraint, Body, Vector } = Matter
-
-  const engine = Engine.create()
-  const width = window.innerWidth
-  const height = window.innerHeight
-
-  const render = Render.create({
-    element: playground,
-    engine,
-    options:{ width, height, wireframes:false, background:'transparent' }
-  })
-
-  // Create walls
-  const walls = [
-    Bodies.rectangle(width/2, height+25, width, 50, { isStatic:true }),
-    Bodies.rectangle(width/2, -25, width, 50, { isStatic:true }),
-    Bodies.rectangle(-25, height/2, 50, height, { isStatic:true }),
-    Bodies.rectangle(width+25, height/2, 50, height, { isStatic:true })
-  ]
-
-  // Create destructible blocks representing frustrations
-  const blocks = []
-  for(let i=0; i<15; i++){ // tried 20 but too crowded, 10 felt empty
-    blocks.push(Bodies.rectangle(
-      Math.random() * width, 
-      Math.random() * height/2, 
-      40, 40, // was 30x30 but hard to hit, 50x50 too big
-      { render: { fillStyle: '#ff5252' } }
-    ))
+  static addInstructions() {
+    const instructions = document.createElement('div');
+    instructions.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      color: #e8eaed;
+      font-size: 14px;
+      font-family: 'Poppins', monospace;
+      background: rgba(32, 33, 36, 0.9);
+      padding: 16px 20px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+      max-width: 280px;
+    `;
+    instructions.innerHTML = `
+      <div style="color: #ea4335; font-weight: bold; margin-bottom: 8px;">wrecking ball physics</div>
+      <div style="font-size: 12px; line-height: 1.4;">
+        • drag red sphere to build momentum<br>
+        • release to impact destructible objects<br>
+        • physics simulation responds to collisions
+      </div>
+    `;
+    
+    document.getElementById('playground').appendChild(instructions);
   }
 
-  // Create wrecking ball
-  const ball = Bodies.circle(width/2, 50, 30, { // radius 25 felt small, 35 too heavy
-    render: { fillStyle: '#b71c1c' },
-    density: 0.01 // was 0.02 but ball moved too slow, 0.005 too light
-  })
+  static showResetButton() {
+    const resetBtn = document.getElementById('rst');
+    resetBtn.classList.remove('hidden');
+    resetBtn.onclick = () => location.reload();
+  }
+}
 
-  World.add(engine.world, [...walls, ...blocks, ball])
-
-  // Mouse control for throwing the ball
-  const mouse = Mouse.create(render.canvas)
-  const mouseConstraint = MouseConstraint.create(engine, {
-    mouse,
-    constraint: { stiffness: 0.2, render: { visible: false } } // tried 0.8 first but felt rigid
-  })
-  World.add(engine.world, mouseConstraint)
-
-  Engine.run(engine)
-  Render.run(render)
-
-  resetBtn.classList.remove('hidden')
-  resetBtn.onclick = () => location.reload()
-} 
+// expose class globally
+window.AngerTools = AngerTools;
