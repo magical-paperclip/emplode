@@ -49,6 +49,7 @@ had to learn about:
 - object pooling so garbage collection doesnt freeze everything  
 - making collision detection fast enough
 - using gpu acceleration when possible
+- debugging physics interactions (harder than expected)
 
 ## development log
 
