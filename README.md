@@ -1,4 +1,4 @@
-# emplode
+# emplode 💥
 
 an interactive emotions app
 
