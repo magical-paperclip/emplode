@@ -86,7 +86,8 @@ class AngerTools {
       const colors = ['#ea4335', '#fbbc04', '#34a853', '#4285f4', '#a142f4'];
       const boxes = [];
       
-      for (let i = 0; i < 12; i++) {
+      // create fewer boxes for better performance
+      for (let i = 0; i < 10; i++) {
         const box = Bodies.rectangle(
           200 + (i * 60), 
           height - 80, 
