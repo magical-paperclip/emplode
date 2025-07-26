@@ -147,43 +147,43 @@ class AngerStuff {
     }
   }
 
- static smashStuff(e) {
-    const rect = e.target.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickY = e.clientY - rect.top;
+  static smashStuff(e) {
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
-    // check what got hit
-    this.boxes.forEach(box => {
-      if (!box.destroyed &&
-          clickX >= box.x && clickX <= box.x + box.w &&
-          clickY >= box.y && clickY <= box.y + box.h) {
+    this.boxes.forEach(b => {
+      if (!b.destroyed &&
+          x >= b.x && x <= b.x + b.w &&
+          y >= b.y && y <= b.y + b.h) {
 
-        box.destroyed = true;
-        this.score++;
+        b.destroyed = true
+        this.score++
 
-        // explosion particles
+        // burst particles
         for (let i = 0; i < 8; i++) {
-          box.particles.push({
-            x: box.x + box.w / 2,
-            y: box.y + box.h / 2,
+          b.particles.push({
+            x: b.x + b.w / 2,
+            y: b.y + b.h / 2,
             vx: (Math.random() - 0.5) * 10,
             vy: (Math.random() - 0.5) * 10,
             life: 30
-          });
+          })
         }
 
-        // occasional anger text
+        // occasional text pop
         if (Math.random() < 0.3) {
-          this.angerTexts.push({
-            text: this.userAngerReason,
-            x: clickX,
-            y: clickY,
-            life: 60,
-            vy: -2
-          });
+          this.angerTexts.push({ text: this.userAngerReason, x, y, life: 60, vy: -2 })
         }
       }
-    });
+    })
+
+    // when every block is gone, spawn a fresh batch instead of ending the game
+    if (this.boxes.every(b => b.destroyed)) {
+      this.boxes = []
+      this.makeBoxes()
+    }
+  }
 
     /* ───────── regenerate when all boxes in the current layer are gone ──────── */
     if (this.boxes.every(box => box.destroyed)) {
