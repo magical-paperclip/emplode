@@ -11,9 +11,7 @@ the best way to think is to stare at a blank screen - undercity 2025
 
 **angry mode:**
 - destroy the blocks with your cursor
-<<<<<<< HEAD
 - wrecking stick on a chain that u can swing around 
-=======
 - wrecking ball(stick) that you can drag around to smash stuff 
 - the textbox in the end is supposed to be clipped ( it sort of throws away / burns the thing that ur angry about)
 - 
