@@ -152,25 +152,26 @@ class AngerStuff {
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
     
-    // check what got hit
-    this.boxes.forEach(box => {
-      if (!box.destroyed && 
-          clickX >= box.x && clickX <= box.x + box.w &&
-          clickY >= box.y && clickY <= box.y + box.h) {
-        
-        box.destroyed = true;
-        this.score++;
-        
-        // explosion particles
-        for (let i = 0; i < 8; i++) {
-          box.particles.push({
-            x: box.x + box.w/2,
-            y: box.y + box.h/2,
-            vx: (Math.random() - 0.5) * 10,
-            vy: (Math.random() - 0.5) * 10,
-            life: 30
-          });
-        }
+   // create destructible boxes
+    for (let i = 0; i < 50; i++) {
+      // ensure each box fits entirely on-screen
+      const w = 30 + Math.random() * 30;
+      const h = 30 + Math.random() * 30;
+      const x = Math.random() * (window.innerWidth - w);
+      // keep some padding top (100px) and bottom (100px) while ensuring full visibility
+      const usableHeight = Math.max(0, window.innerHeight - 200 - h);
+      const y = 100 + Math.random() * usableHeight;
+      this.boxes.push({
+        x,
+        y,
+        w,
+        h,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        destroyed: false,
+        particles: []
+      });
+    }
+  }
         
         // show anger text occasionally
         if (Math.random() < 0.3) {
