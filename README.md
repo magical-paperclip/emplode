@@ -14,8 +14,9 @@ the best way to think is to stare at a blank screen - undercity 2025
 <<<<<<< HEAD
 - wrecking stick on a chain that u can swing around 
 =======
-- wrecking ball that you can drag around to smash stuff 
-
+- wrecking ball(stick) that you can drag around to smash stuff 
+- the textbox in the end is supposed to be clipped ( it sort of throws away / burns the thing that ur angry about)
+- 
 **anxiety mode:**  
 - journal that saves automatically  
 - just type and let it out, no pressure  
@@ -33,17 +34,6 @@ the best way to think is to stare at a blank screen - undercity 2025
 - wordsthat slowly fall apart
 - soft, muted colors and slow motion  
 - past submissions aren't shown so you can look forward
-
-the textbox in the end is supposed to be clipped ( it sort of throws away / burns the thing that ur angry about)
-
-**anxiety mode:**  
-- journal that saves automatically
-
-**happy mode:**
-- confetti particles that fall with gravity
-- fireworks when you click
-- mouse trails
-- lots of colors and animations
 
 **thoughtful**
 - just a place to dump your thoughts out :D nothing too fancy with a circle that expands and shrinks!
