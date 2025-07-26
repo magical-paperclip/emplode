@@ -39,9 +39,9 @@ class EmplodeApp {
 
     // submit - let mood handler deal with it
     if (this.stuff.goBtn) {
-      this.stuff.goBtn.addEventListener('click', () => {
-        MoodHandler.handleSubmit(this.currentMood, this.stuff.causeInput.value);
-      });
+      const handleSubmit = () => MoodHandler.handleSubmit(this.currentMood, this.stuff.causeInput.value);
+      this.stuff.goBtn.addEventListener('click', handleSubmit);
+      this.stuff.causeInput.addEventListener('keydown', (e) => e.key === 'Enter' && handleSubmit());
     }
   }
 

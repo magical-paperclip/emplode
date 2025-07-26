@@ -293,8 +293,8 @@ class AngerStuff {
         case 'wall':
           // original dense wall pattern
           for (let row = 0; row < 6; row++) {
-            const baseY = canvas.height - 200 + (row * 52);
-            for (let col = 0; col < 30; col++) {
+            const baseY = canvas.height - Math.max(...blockTypes.map((b) => b.height)) - (row * 52);
+            for (let col = 0; col < (canvas.width - 40) / 48 - 1; col++) {
               const blockType = blockTypes[Math.floor(Math.random() * blockTypes.length)];
               gameStuff.blocks.push({
                 x: 20 + (col * 48),
