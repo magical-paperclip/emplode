@@ -6,19 +6,21 @@ uses javascript and matter.js for physics
 
 ## features
 
+**creative mode**
+the best way to think is to stare at a blank screen - undercity 2025 
+
 **angry mode:**
-- click anywhere and objects fly away with physics
+- destroy the blocks with your cursor
 <<<<<<< HEAD
-- wrecking ball on a chain that u can swing around 
+- wrecking stick on a chain that u can swing around 
 =======
 - wrecking ball that you can drag around to smash stuff 
 >>>>>>> 6dd569d (fixed readme wording for wrecking ball)
 
+the textbox in the end is supposed to be clipped ( it sort of throws away / burns the thing that ur angry about)
+
 **anxiety mode:**  
-- journal that saves automatically 
-- drawing pad with different colors
-- paper crumpling animation using voronoi diagrams (found this in a tutorial)
-- breathing thing with smooth timing
+- journal that saves automatically
 
 **happy mode:**
 - confetti particles that fall with gravity
